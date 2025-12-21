@@ -344,45 +344,60 @@ public:
 };
 int Loan::nextId = 0;
 
-// Class Report: aggregates financial data (income, expense, net change) over a time period
+
+// Class Report: báo cáo tài chính (thu nhập, chi tiêu, chênh lệch thu chi) trong 1 khoảng thời gian
 class Report {
 private:
     string fromDate;
     string toDate;
-    double totalIncome;
-    double totalExpense;
-    double netChange;
+    long totalIncome;
+    long totalExpense;
+    long netChange;
 public:
     Report(const string& fromDate = "", const string& toDate = "") {
         this->fromDate = fromDate;
         this->toDate = toDate;
-        totalIncome = 0;
-        totalExpense = 0;
-        netChange = 0;
+        this->totalIncome = 0;
+        this->totalExpense = 0;
+        this->netChange = 0;
     }
-    // Build the report from a list of transactions
+
+    // Tổng hợp dữ liệu cho bài báo cáo từ danh sách giao dịch Transaction
     void build(const vector<Transaction*>& transactions) {
-        totalIncome = 0;
-        totalExpense = 0;
-        for (Transaction* tx : transactions) {
-            if (tx->getType() == TransactionType::INCOME) {
-                totalIncome += tx->getAmount();
-            } else if (tx->getType() == TransactionType::EXPENSE) {
-                totalExpense += tx->getAmount();
-            } // TRANSFER types are skipped (internal movement not counted as income/expense)
+        this->totalIncome = 0;
+        this->totalExpense = 0;
+        this->netChange =0;
+        
+        for (int i=0; i<transactions->size(); i++){
+            const Transaction* tx = &transactions->at(i);
+
+            // Bỏ qua nếu giao dịch nằm ngoài kỳ báo cáo
+            if (tx->getDate() < this->fromDate || tx->getDate() > this->toDate)
+                continue; 
+
+            if (tx->isIncome()) {
+                this->totalIncome += tx->getAmount();
+            } else if (tx->isExpense()) {
+                this->totalExpense += tx->getAmount();
+            }
         }
-        netChange = totalIncome - totalExpense;
+        this->netChange = this->totalIncome - this->totalExpense;
     }
-    double getTotalIncome() const  { return totalIncome; }
-    double getTotalExpense() const { return totalExpense; }
-    double getNetChange() const    { return netChange; }
+
+    long getTotalIncome() const  { return this->totalIncome; }
+    long getTotalExpense() const { return this->totalExpense; }
+    long getNetChange() const    { return this->netChange; }
+
+    // In báo cáo theo kỳ đã nhập
     void display() const {
-        cout << "Report from "
-             << (fromDate.empty() ? "the beginning" : fromDate)
-             << " to " << (toDate.empty() ? "today" : toDate) << ":" << endl;
-        cout << "  Total Income: "  << totalIncome << endl;
-        cout << "  Total Expense: " << totalExpense << endl;
-        cout << "  Net Change: "   << netChange << endl;
+        cout << "Bao cao tu ngay " << this->fromDate << " den ngay " << this->toDate << ":\n";
+        if (this->totalIncome ==0 && this->totalExpense ==0){
+            cout << "Khong co giao dich nao trong ky bao cao.\n";
+            return;
+        }
+        cout << "Tong thu nhap: " << this->totalIncome << endl;
+        cout << "Tong chi tieu: " << this->totalExpense << endl;
+        cout << "Chenh lech thu chi: " << this->netChange << endl;
     }
 };
 
