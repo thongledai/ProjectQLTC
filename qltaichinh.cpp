@@ -2,123 +2,490 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <ctime>
 #include <limits>
-#include <sstream>
-
-
-
 using namespace std;
 
-// Enum to represent transaction types
-enum class TransactionType { INCOME, EXPENSE, TRANSFER_IN, TRANSFER_OUT };
+// Enum for transaction types
+enum class TransactionType { INCOME, EXPENSE, TRANSFER };
+string transactionTypeToString(TransactionType t) {
+    switch(t) {
+        case TransactionType::INCOME:  return "INCOME";
+        case TransactionType::EXPENSE: return "EXPENSE";
+        case TransactionType::TRANSFER:return "TRANSFER";
+    }
+    return "UNKNOWN";
+}
 
-// Class representing a financial transaction (income, expense, or transfer)
-class Transaction {
+// Enum for loan types (borrow or lend)
+enum class LoanType { BORROW, LEND };
+string loanTypeToString(LoanType t) {
+    return (t == LoanType::BORROW ? "BORROW" : "LEND");
+}
+
+// Enum for loan status
+enum class LoanStatus { OPEN, PARTIALLY_PAID, PAID, OVERDUE };
+string loanStatusToString(LoanStatus s) {
+    switch(s) {
+        case LoanStatus::OPEN:           return "OPEN";
+        case LoanStatus::PARTIALLY_PAID: return "PARTIALLY_PAID";
+        case LoanStatus::PAID:           return "PAID";
+        case LoanStatus::OVERDUE:        return "OVERDUE";
+    }
+    return "UNKNOWN";
+}
+
+// Utility to get current date as YYYY-MM-DD string
+string getToday() {
+    time_t t = time(NULL);
+    tm *timePtr = localtime(&t);
+    char buf[11];
+    strftime(buf, 11, "%Y-%m-%d", timePtr);
+    return string(buf);
+}
+
+// Forward declarations for classes
+class Transaction;
+class Account;
+class Loan;
+class Payment;
+class Report;
+class User;
+class App;
+class Menu;
+
+// Class Payment: represents a payment made towards a Loan
+class Payment {
 private:
-    TransactionType type;
+    static int nextId;
+    int id;
     double amount;
     string date;
     string note;
 public:
-    Transaction(TransactionType t, double amt, const string& dt, const string& nt)
-        : type(t), amount(amt), date(dt), note(nt) {}
-    TransactionType getType() const { return type; }
-    double getAmount() const { return amount; }
-    const string& getDate() const { return date; }
-    const string& getNote() const { return note; }
+    Payment(double amount, const string& date, const string& note = "") {
+        this->id = ++nextId;
+        this->amount = amount;
+        this->date = date;
+        this->note = note;
+    }
+    int getId() const       { return id; }
+    double getAmount() const{ return amount; }
+    string getDate() const  { return date; }
+    string getNote() const  { return note; }
+    void setNote(const string& newNote) { note = newNote; }
 };
+int Payment::nextId = 0;
 
-// Class representing a financial account with a balance and transaction history
+// Class Transaction: represents a financial transaction (income, expense, or transfer)
+class Transaction {
+private:
+    static int nextId;
+    int id;
+    string title;
+    double amount;
+    string date;
+    TransactionType type;
+    string category;
+    string note;
+public:
+    Transaction(const string& title, double amount, const string& date, TransactionType type,
+                const string& category = "", const string& note = "") {
+        this->id = ++nextId;
+        this->title = title;
+        this->amount = amount;
+        this->date = date;
+        this->type = type;
+        this->category = category;
+        this->note = note;
+    }
+    int getId() const        { return id; }
+    string getTitle() const  { return title; }
+    double getAmount() const { return amount; }
+    string getDate() const   { return date; }
+    TransactionType getType() const { return type; }
+    string getCategory() const { return category; }
+    string getNote() const     { return note; }
+    void setTitle(const string& newTitle)     { title = newTitle; }
+    void setAmount(double newAmount)          { amount = newAmount; }
+    void setDate(const string& newDate)       { date = newDate; }
+    void setCategory(const string& newCategory){ category = newCategory; }
+    void setNote(const string& newNote)       { note = newNote; }
+    bool isIncome() const  { return type == TransactionType::INCOME; }
+    bool isExpense() const { return type == TransactionType::EXPENSE; }
+};
+int Transaction::nextId = 0;
+
+// Class Account: represents a financial account (cash, bank account, e-wallet, etc.)
 class Account {
 private:
+    static int nextId;
+    int id;
     string name;
     double balance;
-    vector<Transaction*> transactions; // using pointers to Transaction
+    vector<Transaction*> transactions;
 public:
-    Account(const string& name, double initialBalance = 0.0) 
-      : name(name), balance(initialBalance) {}
+    Account(const string& name, double initialBalance = 0.0) {
+        this->id = ++nextId;
+        this->name = name;
+        this->balance = 0.0;
+        if (initialBalance != 0.0) {
+            // If initial balance is provided, record it as an initial deposit transaction
+            string today = getToday();
+            Transaction* initTx = new Transaction("Initial Balance", initialBalance, today,
+                                                  TransactionType::INCOME, "Initial", "Starting balance");
+            transactions.push_back(initTx);
+            balance += initialBalance;
+        }
+    }
     ~Account() {
-        // Release dynamically allocated transactions
-        for (Transaction* t : transactions) {
-            delete t;
-        }
-        transactions.clear();
-    }
-    const string& getName() const { return name; }
-    double getBalance() const { return balance; }
-    // Add a transaction to this account (updates balance accordingly)
-    void addTransaction(TransactionType type, double amount, const string& date, const string& note) {
-        Transaction* newTrans = new Transaction(type, amount, date, note);
-        transactions.push_back(newTrans);
-        // Update account balance based on transaction type
-        if(type == TransactionType::INCOME || type == TransactionType::TRANSFER_IN) {
-            balance += amount;
-        } else if(type == TransactionType::EXPENSE || type == TransactionType::TRANSFER_OUT) {
-            balance -= amount;
+        // Free all dynamically allocated transactions
+        for (Transaction* tx : transactions) {
+            delete tx;
         }
     }
-    // Remove a transaction by index (0-based), returns true if removed
-    bool removeTransaction(size_t index) {
-        if(index >= transactions.size()) return false;
-        Transaction* t = transactions[index];
-        // Adjust balance by reversing the transaction effect
-        if(t->getType() == TransactionType::INCOME || t->getType() == TransactionType::TRANSFER_IN) {
-            balance -= t->getAmount();
-        } else if(t->getType() == TransactionType::EXPENSE || t->getType() == TransactionType::TRANSFER_OUT) {
-            balance += t->getAmount();
+    int getId() const        { return id; }
+    string getName() const   { return name; }
+    double getBalance() const{ return balance; }
+    void setName(const string& newName) { name = newName; }
+
+    // Deposit money into this account (creates an INCOME transaction)
+    void deposit(double amount, const string& title, const string& category = "",
+                 const string& note = "", const string& date = "", 
+                 TransactionType type = TransactionType::INCOME) {
+        if (amount < 0) {
+            cout << "Amount must be non-negative!" << endl;
+            return;
         }
-        transactions.erase(transactions.begin() + index);
-        delete t;
+        string txDate = date.empty() ? getToday() : date;
+        Transaction* tx = new Transaction(title, amount, txDate, type, category, note);
+        transactions.push_back(tx);
+        // Increase balance (for deposit or incoming transfer)
+        balance += amount;
+    }
+
+    // Withdraw money from this account (creates an EXPENSE transaction)
+    bool withdraw(double amount, const string& title, const string& category = "",
+                  const string& note = "", const string& date = "",
+                  TransactionType type = TransactionType::EXPENSE) {
+        if (amount < 0) {
+            cout << "Amount must be non-negative!" << endl;
+            return false;
+        }
+        if (amount > balance) {
+            cout << "Insufficient balance for withdrawal!" << endl;
+            return false;
+        }
+        string txDate = date.empty() ? getToday() : date;
+        Transaction* tx = new Transaction(title, amount, txDate, type, category, note);
+        transactions.push_back(tx);
+        // Decrease balance (for withdrawal or outgoing transfer)
+        balance -= amount;
         return true;
     }
-    // List all transactions in this account
-    void listTransactions() const {
-        if(transactions.empty()) {
-            cout << "No transactions for account \"" << name << "\".\n";
-        } else {
-            cout << "Transactions for account \"" << name << "\":\n";
-            for(size_t i = 0; i < transactions.size(); ++i) {
-                const Transaction* t = transactions[i];
-                string typeStr;
-                switch(t->getType()) {
-                    case TransactionType::INCOME: typeStr = "Income"; break;
-                    case TransactionType::EXPENSE: typeStr = "Expense"; break;
-                    case TransactionType::TRANSFER_IN: typeStr = "Transfer In"; break;
-                    case TransactionType::TRANSFER_OUT: typeStr = "Transfer Out"; break;
+
+    // (Optional) Add an existing transaction record to this account (used internally for transfer logic)
+    void addTransaction(Transaction* tx) {
+        transactions.push_back(tx);
+    }
+
+    // Edit a transaction's details (title, amount, category, note, date)
+    bool editTransaction(int txId, const string& newTitle = "", double newAmount = -1,
+                         const string& newCategory = "", const string& newNote = "", const string& newDate = "") {
+        for (Transaction* tx : transactions) {
+            if (tx->getId() == txId) {
+                double oldAmount = tx->getAmount();
+                TransactionType type = tx->getType();
+                // Update provided fields
+                if (!newTitle.empty())    tx->setTitle(newTitle);
+                if (!newCategory.empty()) tx->setCategory(newCategory);
+                if (!newNote.empty())     tx->setNote(newNote);
+                if (!newDate.empty())     tx->setDate(newDate);
+                if (newAmount >= 0) {
+                    // Adjust balance for amount change
+                    if (type == TransactionType::INCOME || type == TransactionType::TRANSFER) {
+                        // Income or incoming transfer: balance was increased by oldAmount
+                        // Adjust by the difference
+                        double diff = newAmount - oldAmount;
+                        balance += diff;
+                    } else if (type == TransactionType::EXPENSE) {
+                        // Expense or outgoing transfer: balance was reduced by oldAmount
+                        // Adjust by the difference (inverse effect)
+                        double diff = newAmount - oldAmount;
+                        balance -= diff;
+                    }
+                    tx->setAmount(newAmount);
                 }
-                // Display index (1-based), date, type, sign and amount, note
-                cout << i+1 << ". [" << t->getDate() << "] " << typeStr << " ";
-                if(t->getType() == TransactionType::EXPENSE || t->getType() == TransactionType::TRANSFER_OUT)
-                    cout << "-";
-                else
-                    cout << "+";
-                cout << t->getAmount() << " - " << t->getNote() << "\n";
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Remove a transaction by ID (and adjust balance accordingly)
+    bool removeTransaction(int txId) {
+        for (auto it = transactions.begin(); it != transactions.end(); ++it) {
+            Transaction* tx = *it;
+            if (tx->getId() == txId) {
+                // Reverse the balance effect of this transaction
+                if (tx->getType() == TransactionType::INCOME) {
+                    balance -= tx->getAmount();
+                } else if (tx->getType() == TransactionType::EXPENSE) {
+                    balance += tx->getAmount();
+                } else if (tx->getType() == TransactionType::TRANSFER) {
+                    // Cannot accurately adjust balance for a transfer without knowing direction (skip adjustment)
+                }
+                delete tx;
+                transactions.erase(it);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Get transactions within a date range [fromDate, toDate] (inclusive).
+    // If fromDate or toDate is empty, it is unbounded on that end.
+    vector<Transaction*> getTransactions(const string& fromDate = "", const string& toDate = "") const {
+        vector<Transaction*> result;
+        for (Transaction* tx : transactions) {
+            if ((fromDate.empty() || tx->getDate() >= fromDate) &&
+                (toDate.empty()   || tx->getDate() <= toDate)) {
+                result.push_back(tx);
+            }
+        }
+        return result;
+    }
+
+    // List all transactions of this account (for console display)
+    void listTransactions() const {
+        if (transactions.empty()) {
+            cout << "No transactions for account \"" << name << "\"." << endl;
+            return;
+        }
+        cout << "Transactions for account \"" << name << "\" (Balance: " << balance << "):" << endl;
+        for (Transaction* tx : transactions) {
+            // Determine sign for display
+            string sign;
+            if (tx->getType() == TransactionType::INCOME)       sign = "+";
+            else if (tx->getType() == TransactionType::EXPENSE) sign = "-";
+            else if (tx->getType() == TransactionType::TRANSFER) {
+                // For transfers, determine sign based on title convention ("Transfer to..." = outflow, "Transfer from..." = inflow)
+                if (tx->getTitle().rfind("Transfer to", 0) == 0)   sign = "-";
+                else if (tx->getTitle().rfind("Transfer from", 0) == 0) sign = "+";
+                else sign = "";
+            }
+            cout << "  [TxID " << tx->getId() << "] "
+                 << tx->getDate() << " | " << tx->getTitle() 
+                 << " | " << sign << tx->getAmount()
+                 << " | Type: " << transactionTypeToString(tx->getType());
+            if (!tx->getCategory().empty()) cout << " (" << tx->getCategory() << ")";
+            if (!tx->getNote().empty())     cout << " | Note: " << tx->getNote();
+            cout << endl;
+        }
+    }
+};
+int Account::nextId = 0;
+
+// Class Loan: represents a borrowing or lending record
+class Loan {
+private:
+    static int nextId;
+    int id;
+    LoanType type;
+    string partnerName;
+    double principal;
+    double interestRate;
+    string startDate;
+    string dueDate;
+    LoanStatus status;
+    vector<Payment*> payments;
+    string note;
+public:
+    Loan(LoanType type, const string& partnerName, double principal, double interestRate,
+         const string& startDate, const string& dueDate, const string& note = "") {
+        this->id = ++nextId;
+        this->type = type;
+        this->partnerName = partnerName;
+        this->principal = principal;
+        this->interestRate = interestRate;
+        this->startDate = startDate;
+        this->dueDate = dueDate;
+        this->note = note;
+        this->status = LoanStatus::OPEN;
+    }
+    ~Loan() {
+        // Free all Payment objects
+        for (Payment* p : payments) {
+            delete p;
+        }
+    }
+    int getId() const         { return id; }
+    LoanType getType() const  { return type; }
+    string getPartnerName() const { return partnerName; }
+    double getPrincipal() const   { return principal; }
+    double getInterestRate() const{ return interestRate; }
+    string getStartDate() const   { return startDate; }
+    string getDueDate() const     { return dueDate; }
+    LoanStatus getStatus() const  { return status; }
+    string getNote() const        { return note; }
+    void setPartnerName(const string& name) { partnerName = name; }
+    void setInterestRate(double rate)       { interestRate = rate; }
+    void setDueDate(const string& date)     { dueDate = date; }
+    void setNote(const string& newNote)     { note = newNote; }
+
+    // Record a payment towards this loan
+    void addPayment(double amount, const string& date, const string& note = "") {
+        if (amount <= 0) {
+            cout << "Payment amount must be positive!" << endl;
+            return;
+        }
+        Payment* payment = new Payment(amount, date, note);
+        payments.push_back(payment);
+        // Update loan status after payment
+        double paidTotal = getPaidTotal();
+        if (paidTotal >= principal) {
+            status = LoanStatus::PAID;
+        } else {
+            if (paidTotal > 0) {
+                status = LoanStatus::PARTIALLY_PAID;
+            }
+            string today = getToday();
+            if (today > dueDate && status != LoanStatus::PAID) {
+                status = LoanStatus::OVERDUE;
             }
         }
     }
-    // Get the list of transaction pointers (read-only)
-    const vector<Transaction*>& getTransactions() const { return transactions; }
+
+    // Calculate total paid amount so far
+    double getPaidTotal() const {
+        double total = 0;
+        for (Payment* p : payments) {
+            total += p->getAmount();
+        }
+        return total;
+    }
+
+    // Calculate remaining amount (principal minus paid)
+    double getRemaining() const {
+        double rem = principal - getPaidTotal();
+        return (rem < 0 ? 0 : rem);
+    }
+
+    // Mark the loan as fully paid
+    void markPaid() {
+        status = LoanStatus::PAID;
+    }
+
+    // Check if loan is overdue as of a given date (and update status if so)
+    bool isOverdue(const string& today) {
+        if (status != LoanStatus::PAID && today > dueDate) {
+            status = LoanStatus::OVERDUE;
+            return true;
+        }
+        return false;
+    }
+
+    // List all payments made for this loan
+    void listPayments() const {
+        if (payments.empty()) {
+            cout << "No payments recorded for this loan." << endl;
+        } else {
+            cout << "Payments for loan ID " << id << ":" << endl;
+            for (Payment* p : payments) {
+                cout << "  [PaymentID " << p->getId() << "] "
+                     << p->getDate() << " - Amount: " << p->getAmount();
+                if (!p->getNote().empty()) cout << " (Note: " << p->getNote() << ")";
+                cout << endl;
+            }
+        }
+    }
+};
+int Loan::nextId = 0;
+
+// Class Report: aggregates financial data (income, expense, net change) over a time period
+class Report {
+private:
+    string fromDate;
+    string toDate;
+    double totalIncome;
+    double totalExpense;
+    double netChange;
+public:
+    Report(const string& fromDate = "", const string& toDate = "") {
+        this->fromDate = fromDate;
+        this->toDate = toDate;
+        totalIncome = 0;
+        totalExpense = 0;
+        netChange = 0;
+    }
+    // Build the report from a list of transactions
+    void build(const vector<Transaction*>& transactions) {
+        totalIncome = 0;
+        totalExpense = 0;
+        for (Transaction* tx : transactions) {
+            if (tx->getType() == TransactionType::INCOME) {
+                totalIncome += tx->getAmount();
+            } else if (tx->getType() == TransactionType::EXPENSE) {
+                totalExpense += tx->getAmount();
+            } // TRANSFER types are skipped (internal movement not counted as income/expense)
+        }
+        netChange = totalIncome - totalExpense;
+    }
+    double getTotalIncome() const  { return totalIncome; }
+    double getTotalExpense() const { return totalExpense; }
+    double getNetChange() const    { return netChange; }
+    void display() const {
+        cout << "Report from "
+             << (fromDate.empty() ? "the beginning" : fromDate)
+             << " to " << (toDate.empty() ? "today" : toDate) << ":" << endl;
+        cout << "  Total Income: "  << totalIncome << endl;
+        cout << "  Total Expense: " << totalExpense << endl;
+        cout << "  Net Change: "   << netChange << endl;
+    }
 };
 
-// Class to manage multiple accounts (collection of Account objects)
-class FinanceManager {
+// Class User: represents a user of the system (with accounts and loans)
+class User {
 private:
-    vector<Account*> accounts; // using pointers to Account
+    static int nextId;
+    int id;
+    string fullName;
+    string email;
+    string password;
+    vector<Account*> accounts;
+    vector<Loan*> loans;
 public:
-    ~FinanceManager() {
-        // Clean up all accounts
-        for(Account* acc : accounts) {
-            delete acc;
-        }
-        accounts.clear();
+    User(const string& fullName, const string& email, const string& password) {
+        this->id = ++nextId;
+        this->fullName = fullName;
+        this->email = email;
+        this->password = password;
     }
-    void addAccount(const string& name, double initialBalance = 0.0) {
-        Account* acc = new Account(name, initialBalance);
-        accounts.push_back(acc);
+    ~User() {
+        // Clean up dynamically allocated accounts and loans
+        for (Account* acc : accounts) delete acc;
+        for (Loan* loan : loans)     delete loan;
     }
-    bool removeAccount(const string& name) {
-        for(auto it = accounts.begin(); it != accounts.end(); ++it) {
-            if((*it)->getName() == name) {
+    int getId() const         { return id; }
+    string getFullName() const{ return fullName; }
+    string getEmail() const   { return email; }
+    bool checkPassword(const string& pw) const { return pw == password; }
+
+    // Provide read-only access to accounts and loans lists
+    const vector<Account*>& getAccounts() const { return accounts; }
+    const vector<Loan*>& getLoans() const       { return loans; }
+
+    // Add a new financial account
+    Account* addAccount(const string& name, double initialBalance = 0.0) {
+        Account* account = new Account(name, initialBalance);
+        accounts.push_back(account);
+        return account;
+    }
+
+    // Remove an account by ID
+    bool removeAccount(int accountId) {
+        for (auto it = accounts.begin(); it != accounts.end(); ++it) {
+            if ((*it)->getId() == accountId) {
                 delete *it;
                 accounts.erase(it);
                 return true;
@@ -126,347 +493,552 @@ public:
         }
         return false;
     }
-    Account* findAccount(const string& name) {
-        for(Account* acc : accounts) {
-            if(acc->getName() == name) return acc;
+
+    // Rename an existing account by ID
+    bool renameAccount(int accountId, const string& newName) {
+        for (Account* acc : accounts) {
+            if (acc->getId() == accountId) {
+                acc->setName(newName);
+                return true;
+            }
         }
-        return nullptr;
+        return false;
     }
+
+    // Transfer money between two accounts of this user
+    bool transfer(int fromAccountId, int toAccountId, double amount, const string& note = "") {
+        if (fromAccountId == toAccountId) {
+            cout << "Cannot transfer to the same account." << endl;
+            return false;
+        }
+        Account* fromAcc = nullptr;
+        Account* toAcc   = nullptr;
+        for (Account* acc : accounts) {
+            if (acc->getId() == fromAccountId) fromAcc = acc;
+            if (acc->getId() == toAccountId)   toAcc   = acc;
+        }
+        if (fromAcc == nullptr || toAcc == nullptr) {
+            cout << "Account not found." << endl;
+            return false;
+        }
+        if (amount < 0) {
+            cout << "Amount must be positive!" << endl;
+            return false;
+        }
+        if (amount > fromAcc->getBalance()) {
+            cout << "Insufficient balance in source account." << endl;
+            return false;
+        }
+        string today = getToday();
+        // Perform transfer: withdraw from source (as TRANSFER) and deposit to destination (as TRANSFER)
+        fromAcc->withdraw(amount, "Transfer to " + toAcc->getName(), "Transfer", note, today, TransactionType::TRANSFER);
+        toAcc->deposit(amount, "Transfer from " + fromAcc->getName(), "Transfer", note, today, TransactionType::TRANSFER);
+        cout << "Transferred " << amount << " from \"" << fromAcc->getName() << "\" to \"" << toAcc->getName() << "\"." << endl;
+        return true;
+    }
+
+    // Add a new Loan record (borrow or lend money)
+    Loan* addLoan(LoanType type, const string& partnerName, double principal, double interestRate,
+                  const string& startDate, const string& dueDate, const string& note = "") {
+        Loan* loan = new Loan(type, partnerName, principal, interestRate, startDate, dueDate, note);
+        loans.push_back(loan);
+        return loan;
+    }
+
+    // Update loan information (interest rate or due date)
+    bool updateLoan(int loanId, double newInterestRate = -1, const string& newDueDate = "") {
+        for (Loan* loan : loans) {
+            if (loan->getId() == loanId) {
+                if (newInterestRate >= 0) loan->setInterestRate(newInterestRate);
+                if (!newDueDate.empty())  loan->setDueDate(newDueDate);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Remove a loan by ID
+    bool removeLoan(int loanId) {
+        for (auto it = loans.begin(); it != loans.end(); ++it) {
+            if ((*it)->getId() == loanId) {
+                delete *it;
+                loans.erase(it);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Generate a financial report (income/expense summary) for a given date range
+    Report generateReport(const string& fromDate = "", const string& toDate = "") {
+        // Collect all transactions from all accounts in the specified range
+        vector<Transaction*> allTx;
+        for (Account* acc : accounts) {
+            vector<Transaction*> rangeTx = acc->getTransactions(fromDate, toDate);
+            allTx.insert(allTx.end(), rangeTx.begin(), rangeTx.end());
+        }
+        Report report(fromDate, toDate);
+        report.build(allTx);
+        return report;
+    }
+
+    // Compute total balance across all accounts
+    double getTotalBalance() const {
+        double total = 0;
+        for (Account* acc : accounts) {
+            total += acc->getBalance();
+        }
+        return total;
+    }
+
+    // List all accounts (with balances)
     void listAccounts() const {
-        if(accounts.empty()) {
-            cout << "No accounts available.\n";
+        if (accounts.empty()) {
+            cout << "No accounts available." << endl;
         } else {
-            cout << "Accounts list:\n";
-            for(size_t i = 0; i < accounts.size(); ++i) {
-                const Account* acc = accounts[i];
-                cout << i+1 << ". " << acc->getName() << " - Balance: " << acc->getBalance() << "\n";
+            cout << "Accounts for user \"" << fullName << "\":" << endl;
+            for (Account* acc : accounts) {
+                cout << "  [AccountID " << acc->getId() << "] " 
+                     << acc->getName() << " - Balance: " << acc->getBalance() << endl;
             }
         }
     }
-    const vector<Account*>& getAccounts() const { return accounts; }
+
+    // List all loans (with summary info)
+    void listLoans() const {
+        if (loans.empty()) {
+            cout << "No loans recorded." << endl;
+        } else {
+            cout << "Loans for user \"" << fullName << "\":" << endl;
+            for (Loan* loan : loans) {
+                // Update status if overdue (without permanently changing status in listing context)
+                string statusStr = loanStatusToString(loan->getStatus());
+                cout << "  [LoanID " << loan->getId() << "] "
+                     << (loan->getType() == LoanType::BORROW ? "Borrowed from " : "Lent to ")
+                     << loan->getPartnerName()
+                     << " | Principal: " << loan->getPrincipal()
+                     << " | Paid: " << loan->getPaidTotal()
+                     << " | Remaining: " << loan->getRemaining()
+                     << " | Status: " << statusStr << endl;
+            }
+        }
+    }
+};
+int User::nextId = 0;
+
+// Class App: orchestrates the users and manages the current logged-in user
+class App {
+private:
+    vector<User*> users;
+    User* currentUser;
+public:
+    App() : currentUser(nullptr) {}
+    ~App() {
+        // Clean up all users
+        for (User* u : users) {
+            delete u;
+        }
+    }
+
+    // Register a new user (returns the User pointer or nullptr if failed)
+    User* registerUser(const string& fullName, const string& email, const string& password) {
+        // Ensure email is unique
+        for (User* u : users) {
+            if (u->getEmail() == email) {
+                cout << "Email \"" << email << "\" is already registered. Please use a different email." << endl;
+                return nullptr;
+            }
+        }
+        User* user = new User(fullName, email, password);
+        users.push_back(user);
+        cout << "Registration successful! You can now log in." << endl;
+        return user;
+    }
+
+    // Log in a user by email and password
+    bool login(const string& email, const string& password) {
+        for (User* u : users) {
+            if (u->getEmail() == email) {
+                if (u->checkPassword(password)) {
+                    currentUser = u;
+                    cout << "Welcome, " << u->getFullName() << "!" << endl;
+                    return true;
+                } else {
+                    cout << "Incorrect password. Please try again." << endl;
+                    return false;
+                }
+            }
+        }
+        cout << "No account found with email: " << email << endl;
+        return false;
+    }
+
+    // Log out the current user
+    void logout() {
+        if (currentUser) {
+            cout << "User \"" << currentUser->getFullName() << "\" has been logged out." << endl;
+        }
+        currentUser = nullptr;
+    }
+
+    User* getCurrentUser() const {
+        return currentUser;
+    }
+
+    // Export current user's transaction data to a CSV file
+    void exportDataCSV(const string& filename) {
+        if (currentUser == nullptr) {
+            cout << "No user is logged in." << endl;
+            return;
+        }
+        ofstream file(filename);
+        if (!file) {
+            cout << "Unable to open file: " << filename << endl;
+            return;
+        }
+        // Write CSV header
+        file << "Account,Date,Title,Amount,Type,Category,Note\n";
+        // For each account of current user, output each transaction
+        for (Account* acc : currentUser->getAccounts()) {
+            for (Transaction* tx : acc->getTransactions()) {
+                file << acc->getName() << ","
+                     << tx->getDate() << ","
+                     << (tx->getType() == TransactionType::EXPENSE ? "-" : "") << tx->getAmount() << ","
+                     << transactionTypeToString(tx->getType()) << ","
+                     << tx->getCategory() << ","
+                     << tx->getNote() << "\n";
+            }
+        }
+        file.close();
+        cout << "Data exported to \"" << filename << "\" successfully." << endl;
+    }
 };
 
-// Class to handle the text-based menu interface and user interactions
+// Class Menu: handles the user interaction menu system
 class Menu {
 private:
-    FinanceManager manager;
-    // Helper functions for each menu action
-    void printMainMenu() const {
-        cout << "\n=== Personal Finance Manager ===\n";
-        cout << "1. Add Account\n";
-        cout << "2. Remove Account\n";
-        cout << "3. List Accounts\n";
-        cout << "4. Add Transaction\n";
-        cout << "5. Remove Transaction\n";
-        cout << "6. Show Transactions of an Account\n";
-        cout << "7. Transfer Between Accounts\n";
-        cout << "8. Export Data to CSV\n";
-        cout << "0. Exit\n";
-    }
-    void addAccountMenu() {
-        string name;
-        cout << "Enter new account name: ";
-        getline(cin, name);
-        if(name.empty()) {
-            cout << "Account name cannot be empty.\n";
-            return;
-        }
-        if(manager.findAccount(name) != nullptr) {
-            cout << "Account \"" << name << "\" already exists.\n";
-            return;
-        }
-        double initBalance = 0.0;
-        cout << "Enter initial balance (or 0 if none): ";
-        if(!(cin >> initBalance)) {
-            cout << "Invalid amount. Setting initial balance to 0.\n";
-            initBalance = 0.0;
-            cin.clear();
-        }
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        manager.addAccount(name, initBalance);
-        cout << "Account \"" << name << "\" added successfully.\n";
-    }
-    void removeAccountMenu() {
-        string name;
-        cout << "Enter account name to remove: ";
-        getline(cin, name);
-        if(name.empty()) {
-            cout << "Name cannot be empty.\n";
-            return;
-        }
-        if(manager.removeAccount(name)) {
-            cout << "Account \"" << name << "\" removed.\n";
-        } else {
-            cout << "Account \"" << name << "\" not found.\n";
-        }
-    }
-    void listAccountsMenu() {
-        manager.listAccounts();
-    }
-    void addTransactionMenu() {
-        string accName;
-        cout << "Enter account name to add transaction: ";
-        getline(cin, accName);
-        Account* acc = manager.findAccount(accName);
-        if(acc == nullptr) {
-            cout << "Account not found.\n";
-            return;
-        }
-        int typeChoice;
-        cout << "Enter transaction type (1 = Income, 2 = Expense): ";
-        if(!(cin >> typeChoice)) {
-            cout << "Invalid type choice.\n";
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            return;
-        }
-        if(typeChoice != 1 && typeChoice != 2) {
-            cout << "Invalid type choice.\n";
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            return;
-        }
-        TransactionType type = (typeChoice == 1) ? TransactionType::INCOME : TransactionType::EXPENSE;
-        double amt;
-        cout << "Enter amount: ";
-        if(!(cin >> amt)) {
-            cout << "Invalid amount entered.\n";
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            return;
-        }
-        if(amt <= 0) {
-            cout << "Amount must be positive.\n";
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            return;
-        }
-        if(type == TransactionType::EXPENSE && amt > acc->getBalance()) {
-            cout << "Warning: expense amount is greater than current balance.\n";
-        }
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        string date;
-        cout << "Enter date (YYYY-MM-DD or any format): ";
-        getline(cin, date);
-        if(date.empty()) date = "N/A";
-        string note;
-        cout << "Enter note/description: ";
-        getline(cin, note);
-        if(note.empty()) note = "(none)";
-        acc->addTransaction(type, amt, date, note);
-        cout << "Transaction added to account \"" << accName << "\".\n";
-    }
-    void removeTransactionMenu() {
-        string accName;
-        cout << "Enter account name to remove a transaction from: ";
-        getline(cin, accName);
-        Account* acc = manager.findAccount(accName);
-        if(acc == nullptr) {
-            cout << "Account not found.\n";
-            return;
-        }
-        const vector<Transaction*>& trans = acc->getTransactions();
-        if(trans.empty()) {
-            cout << "No transactions in this account.\n";
-            return;
-        }
-        acc->listTransactions();
-        cout << "Enter transaction number to remove: ";
-        size_t index;
-        if(!(cin >> index)) {
-            cout << "Invalid input.\n";
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            return;
-        }
-        if(index < 1 || index > trans.size()) {
-            cout << "Invalid transaction number.\n";
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            return;
-        }
-        size_t idx0 = index - 1;
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        if(acc->removeTransaction(idx0)) {
-            cout << "Transaction #" << index << " removed from account \"" << accName << "\".\n";
-        } else {
-            cout << "Failed to remove transaction.\n";
-        }
-    }
-    void listTransactionsMenu() {
-        string accName;
-        cout << "Enter account name to view transactions: ";
-        getline(cin, accName);
-        Account* acc = manager.findAccount(accName);
-        if(acc == nullptr) {
-            cout << "Account not found.\n";
-        } else {
-            acc->listTransactions();
-        }
-    }
-    void transferMenu() {
-        string fromName, toName;
-        cout << "Enter source account name: ";
-        getline(cin, fromName);
-        cout << "Enter destination account name: ";
-        getline(cin, toName);
-        if(fromName == toName) {
-            cout << "Source and destination cannot be the same.\n";
-            return;
-        }
-        Account* accFrom = manager.findAccount(fromName);
-        Account* accTo = manager.findAccount(toName);
-        if(accFrom == nullptr || accTo == nullptr) {
-            cout << "One or both accounts not found.\n";
-            return;
-        }
-        double amt;
-        cout << "Enter transfer amount: ";
-        if(!(cin >> amt)) {
-            cout << "Invalid amount.\n";
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            return;
-        }
-        if(amt <= 0) {
-            cout << "Amount must be positive.\n";
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            return;
-        }
-        if(amt > accFrom->getBalance()) {
-            cout << "Insufficient balance in source account.\n";
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            return;
-        }
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        string date;
-        cout << "Enter date of transfer: ";
-        getline(cin, date);
-        if(date.empty()) date = "N/A";
-        string note;
-        cout << "Enter note for transfer: ";
-        getline(cin, note);
-        if(note.empty()) note = "(transfer)";
-        accFrom->addTransaction(TransactionType::TRANSFER_OUT, amt, date, 
-                                 string("Transfer to ") + accTo->getName() + 
-                                 (note == "(transfer)" ? "" : (" - " + note)));
-        accTo->addTransaction(TransactionType::TRANSFER_IN, amt, date, 
-                               string("Transfer from ") + accFrom->getName() + 
-                               (note == "(transfer)" ? "" : (" - " + note)));
-        cout << "Transferred " << amt << " from \"" << fromName << "\" to \"" << toName << "\" successfully.\n";
-    }
-    void exportCSVMenu() {
-        string filename;
-        cout << "Enter filename to export (e.g., data.csv): ";
-        getline(cin, filename);
-        if(filename.empty()) {
-            cout << "Filename cannot be empty.\n";
-            return;
-        }
-        ofstream fout(filename);
-        if(!fout) {
-            cout << "Error opening file for writing.\n";
-            return;
-        }
-        fout << "Account,Date,Type,Amount,Note\n";
-        for(const Account* acc : manager.getAccounts()) {
-            for(const Transaction* t : acc->getTransactions()) {
-                string typeStr;
-                switch(t->getType()) {
-                    case TransactionType::INCOME: typeStr = "Income"; break;
-                    case TransactionType::EXPENSE: typeStr = "Expense"; break;
-                    case TransactionType::TRANSFER_IN: typeStr = "Transfer In"; break;
-                    case TransactionType::TRANSFER_OUT: typeStr = "Transfer Out"; break;
-                }
-                string accName = acc->getName();
-                string date = t->getDate();
-                string note = t->getNote();
-                for(char &c : accName) if(c == ',') c = ';';
-                for(char &c : date) if(c == ',') c = ';';
-                for(char &c : note) if(c == ',') c = ';';
-                fout << accName << "," << date << "," << typeStr << "," 
-                     << t->getAmount() << "," << note << "\n";
-            }
-        }
-        fout.close();
-        cout << "Data exported to " << filename << " successfully.\n";
-    }
-    void importCSVMenu() {
-        string filename;
-        cout << "Enter CSV filename to import: ";
-        getline(cin, filename);
-
-        ifstream fin(filename);
-        if (!fin) {
-            cout << "Cannot open file.\n";
-            return;
-        }
-
-        string line;
-        getline(fin, line); // bỏ header
-
-        while (getline(fin, line)) {
-            stringstream ss(line);
-            string accName, date, typeStr, amountStr, note;
-
-            getline(ss, accName, ',');
-            getline(ss, date, ',');
-            getline(ss, typeStr, ',');
-            getline(ss, amountStr, ',');
-            getline(ss, note);
-
-            double amount = stod(amountStr);
-
-            Account* acc = manager.findAccount(accName);
-            if (!acc) {
-                manager.addAccount(accName, 0);
-                acc = manager.findAccount(accName);
-            }
-
-            TransactionType type;
-            if (typeStr == "Income") type = TransactionType::INCOME;
-            else if (typeStr == "Expense") type = TransactionType::EXPENSE;
-            else if (typeStr == "Transfer In") type = TransactionType::TRANSFER_IN;
-            else if (typeStr == "Transfer Out") type = TransactionType::TRANSFER_OUT;
-            else continue;
-
-            acc->addTransaction(type, amount, date, note);
-        }
-
-        fin.close();
-        cout << "Import CSV completed successfully.\n";
-    }
-
-    
+    App& app;
 public:
+    Menu(App& appRef) : app(appRef) {}
+
+    // Display menu for not logged-in state
+    void showMainMenu() {
+        cout << "\n==== Personal Finance Management ====\n";
+        cout << "1. Register\n";
+        cout << "2. Login\n";
+        cout << "3. Exit\n";
+        cout << "Choose an option: ";
+    }
+
+    // Display menu for logged-in state (current user)
+    void showUserMenu(const string& userName) {
+        cout << "\n==== Main Menu (User: " << userName << ") ====\n";
+        cout << "1. Add Account\n";
+        cout << "2. List Accounts\n";
+        cout << "3. Deposit to Account\n";
+        cout << "4. Withdraw from Account\n";
+        cout << "5. Transfer Between Accounts\n";
+        cout << "6. List Transactions (for an Account)\n";
+        cout << "7. Add Loan (Borrow/Lend)\n";
+        cout << "8. List Loans\n";
+        cout << "9. Record Loan Payment\n";
+        cout << "10. Mark Loan as Paid\n";
+        cout << "11. Generate Report (Income/Expense)\n";
+        cout << "12. Export Data to CSV\n";
+        cout << "13. Logout\n";
+        cout << "Choose an option: ";
+    }
+
+    // Run the menu loop
     void run() {
-        int choice;
-        do {
-            printMainMenu();
-            cout << "Enter your choice: ";
-            if(!(cin >> choice)) {
-                cin.clear();
+        bool running = true;
+        while (running) {
+            if (app.getCurrentUser() == nullptr) {
+                // Not logged in: show main menu
+                showMainMenu();
+                int choice;
+                if (!(cin >> choice)) {
+                    // Handle non-integer input
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    continue;
+                }
+                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // flush leftover newline
+                switch (choice) {
+                    case 1: { // Register new user
+                        string name, email, pass;
+                        cout << "Enter full name: ";
+                        getline(cin, name);
+                        cout << "Enter email: ";
+                        cin >> email;
+                        cout << "Enter password: ";
+                        cin >> pass;
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        app.registerUser(name, email, pass);
+                        break;
+                    }
+                    case 2: { // Login existing user
+                        string email, pass;
+                        cout << "Enter email: ";
+                        cin >> email;
+                        cout << "Enter password: ";
+                        cin >> pass;
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        app.login(email, pass);
+                        break;
+                    }
+                    case 3: // Exit application
+                        cout << "Exiting application. Goodbye!" << endl;
+                        running = false;
+                        break;
+                    default:
+                        cout << "Invalid choice. Please enter a number from the menu." << endl;
+                }
+            } else {
+                // Logged in: show user menu
+                string userName = app.getCurrentUser()->getFullName();
+                showUserMenu(userName);
+                int choice;
+                if (!(cin >> choice)) {
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    continue;
+                }
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                cout << "Invalid input. Please enter a number.\n";
-                choice = -1;
-                continue;
+                User* user = app.getCurrentUser();
+                switch (choice) {
+                    case 1: { // Add Account
+                        string accName;
+                        double initBal;
+                        cout << "Enter new account name: ";
+                        getline(cin, accName);
+                        cout << "Enter initial balance (0 if none): ";
+                        cin >> initBal;
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        user->addAccount(accName, initBal);
+                        cout << "Account \"" << accName << "\" has been added." << endl;
+                        break;
+                    }
+                    case 2: { // List Accounts
+                        user->listAccounts();
+                        break;
+                    }
+                    case 3: { // Deposit to Account
+                        int accId;
+                        double amt;
+                        string title, category, note, date;
+                        cout << "Enter Account ID to deposit into: ";
+                        cin >> accId;
+                        cout << "Enter amount to deposit: ";
+                        cin >> amt;
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        cout << "Enter transaction title: ";
+                        getline(cin, title);
+                        cout << "Enter category (optional): ";
+                        getline(cin, category);
+                        cout << "Enter note (optional): ";
+                        getline(cin, note);
+                        cout << "Enter date (YYYY-MM-DD, leave blank for today): ";
+                        getline(cin, date);
+                        if (date.empty()) date = getToday();
+                        bool found = false;
+                        for (Account* acc : user->getAccounts()) {
+                            if (acc->getId() == accId) {
+                                acc->deposit(amt, title, category, note, date);
+                                cout << "Deposited " << amt << " to \"" << acc->getName() 
+                                     << "\". New balance: " << acc->getBalance() << endl;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            cout << "Account ID " << accId << " not found." << endl;
+                        }
+                        break;
+                    }
+                    case 4: { // Withdraw from Account
+                        int accId;
+                        double amt;
+                        string title, category, note, date;
+                        cout << "Enter Account ID to withdraw from: ";
+                        cin >> accId;
+                        cout << "Enter amount to withdraw: ";
+                        cin >> amt;
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        cout << "Enter transaction title: ";
+                        getline(cin, title);
+                        cout << "Enter category (optional): ";
+                        getline(cin, category);
+                        cout << "Enter note (optional): ";
+                        getline(cin, note);
+                        cout << "Enter date (YYYY-MM-DD, leave blank for today): ";
+                        getline(cin, date);
+                        if (date.empty()) date = getToday();
+                        bool found = false;
+                        for (Account* acc : user->getAccounts()) {
+                            if (acc->getId() == accId) {
+                                if (acc->withdraw(amt, title, category, note, date)) {
+                                    cout << "Withdrew " << amt << " from \"" << acc->getName() 
+                                         << "\". New balance: " << acc->getBalance() << endl;
+                                }
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            cout << "Account ID " << accId << " not found or insufficient balance." << endl;
+                        }
+                        break;
+                    }
+                    case 5: { // Transfer between Accounts
+                        int fromId, toId;
+                        double amt;
+                        string note;
+                        cout << "Enter source Account ID: ";
+                        cin >> fromId;
+                        cout << "Enter destination Account ID: ";
+                        cin >> toId;
+                        cout << "Enter amount to transfer: ";
+                        cin >> amt;
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        cout << "Enter note for transfer (optional): ";
+                        getline(cin, note);
+                        user->transfer(fromId, toId, amt, note);
+                        break;
+                    }
+                    case 6: { // List Transactions for an Account
+                        int accId;
+                        cout << "Enter Account ID to view transactions: ";
+                        cin >> accId;
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        bool found = false;
+                        for (Account* acc : user->getAccounts()) {
+                            if (acc->getId() == accId) {
+                                acc->listTransactions();
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            cout << "Account ID " << accId << " not found." << endl;
+                        }
+                        break;
+                    }
+                    case 7: { // Add Loan
+                        int typeChoice;
+                        string partner;
+                        double principal, interest;
+                        string startDate, dueDate, note;
+                        cout << "Enter loan type (1 = BORROW (you owe), 2 = LEND (you lend out)): ";
+                        cin >> typeChoice;
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        LoanType type = (typeChoice == 2 ? LoanType::LEND : LoanType::BORROW);
+                        cout << "Enter partner name (lender/borrower): ";
+                        getline(cin, partner);
+                        cout << "Enter principal amount: ";
+                        cin >> principal;
+                        cout << "Enter annual interest rate (%): ";
+                        cin >> interest;
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        cout << "Enter start date (YYYY-MM-DD): ";
+                        getline(cin, startDate);
+                        cout << "Enter due date (YYYY-MM-DD): ";
+                        getline(cin, dueDate);
+                        cout << "Enter note (optional): ";
+                        getline(cin, note);
+                        user->addLoan(type, partner, principal, interest, startDate, dueDate, note);
+                        cout << "Loan added successfully." << endl;
+                        break;
+                    }
+                    case 8: { // List Loans
+                        // Update overdue status for each loan before listing (based on current date)
+                        string today = getToday();
+                        for (Loan* loan : user->getLoans()) {
+                            loan->isOverdue(today);
+                        }
+                        user->listLoans();
+                        break;
+                    }
+                    case 9: { // Record Loan Payment
+                        int loanId;
+                        double amt;
+                        string date, note;
+                        cout << "Enter Loan ID to record a payment: ";
+                        cin >> loanId;
+                        cout << "Enter payment amount: ";
+                        cin >> amt;
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        cout << "Enter payment date (YYYY-MM-DD): ";
+                        getline(cin, date);
+                        cout << "Enter note (optional): ";
+                        getline(cin, note);
+                        bool found = false;
+                        for (Loan* loan : user->getLoans()) {
+                            if (loan->getId() == loanId) {
+                                loan->addPayment(amt, date, note);
+                                cout << "Payment recorded. Remaining balance: " << loan->getRemaining() << endl;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            cout << "Loan ID " << loanId << " not found." << endl;
+                        }
+                        break;
+                    }
+                    case 10: { // Mark Loan as Paid
+                        int loanId;
+                        cout << "Enter Loan ID to mark as fully paid: ";
+                        cin >> loanId;
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        bool found = false;
+                        for (Loan* loan : user->getLoans()) {
+                            if (loan->getId() == loanId) {
+                                loan->markPaid();
+                                cout << "Loan " << loanId << " marked as PAID." << endl;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            cout << "Loan ID " << loanId << " not found." << endl;
+                        }
+                        break;
+                    }
+                    case 11: { // Generate Income/Expense Report
+                        string fromDate, toDate;
+                        cout << "Enter start date for report (YYYY-MM-DD, leave blank for no start limit): ";
+                        getline(cin, fromDate);
+                        cout << "Enter end date for report (YYYY-MM-DD, leave blank for no end limit): ";
+                        getline(cin, toDate);
+                        Report rep = user->generateReport(fromDate, toDate);
+                        rep.display();
+                        break;
+                    }
+                    case 12: { // Export Data to CSV
+                        string filename;
+                        cout << "Enter filename to export data (e.g., data.csv): ";
+                        getline(cin, filename);
+                        if (filename.empty()) filename = "export.csv";
+                        app.exportDataCSV(filename);
+                        break;
+                    }
+                    case 13: { // Logout
+                        app.logout();
+                        break;
+                    }
+                    default:
+                        cout << "Invalid choice. Please enter a number from the menu." << endl;
+                }
             }
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            switch(choice) {
-                case 1: addAccountMenu(); break;
-                case 2: removeAccountMenu(); break;
-                case 3: listAccountsMenu(); break;
-                case 4: addTransactionMenu(); break;
-                case 5: removeTransactionMenu(); break;
-                case 6: listTransactionsMenu(); break;
-                case 7: transferMenu(); break;
-                case 8: exportCSVMenu(); break;
-                case 0: cout << "Exiting program...\n"; break;
-                default: cout << "Invalid choice. Try again.\n";
-            }
-        } while(choice != 0);
+        }
     }
 };
 
+// Main function: create App and Menu, then start the menu loop
 int main() {
-    Menu menu;
+    App app;
+    Menu menu(app);
     menu.run();
     return 0;
 }
