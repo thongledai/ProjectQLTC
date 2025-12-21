@@ -479,6 +479,9 @@ public:
     const vector<Loan*>& getLoans() const { return loans; }
 
     void setId(int ID) { this->id = ID; }
+    void setFullName(string fullname) { this->fullName=fullName; }
+    void setEmail(string email) { this->email=email; }
+    void setPassword(string password) { this->password=password; }
 
     // Kiểm tra xác thực mật khẩu
     bool checkPassword(const string& pw) const {
