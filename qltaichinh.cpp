@@ -444,16 +444,21 @@ public:
     }
 };
 
-// Class User: represents a user of the system (with accounts and loans)
+// Class User: đại diện cho một người người dùng của hệ thống(có tài khoản và khoản)
 class User {
 private:
-    static int nextId;
+   static int nextId;                 // Biến tĩnh dùng để sinh ID tự tăng
+
     int id;
     string fullName;
-    string email;
     string password;
+    string email;
+
+    // User sở hữu nhiều Account và Loan
+    // Dùng con trỏ để quản lý động vòng đời đối tượng
     vector<Account*> accounts;
     vector<Loan*> loans;
+
 public:
     User(const string& fullName, const string& email, const string& password) {
         this->id = ++nextId;
@@ -461,28 +466,35 @@ public:
         this->email = email;
         this->password = password;
     }
+    // Giải phóng toàn bộ tài nguyên động mà User sở hữu
     ~User() {
-        // Clean up dynamically allocated accounts and loans
         for (Account* acc : accounts) delete acc;
         for (Loan* loan : loans)     delete loan;
     }
-    int getId() const         { return id; }
-    string getFullName() const{ return fullName; }
-    string getEmail() const   { return email; }
-    bool checkPassword(const string& pw) const { return pw == password; }
-
-    // Provide read-only access to accounts and loans lists
+    // ===== Getter / Setter =====
+    int getId() const { return id; }
+    string getFullName() const { return fullName; }
+    string getEmail() const { return email; }
     const vector<Account*>& getAccounts() const { return accounts; }
-    const vector<Loan*>& getLoans() const       { return loans; }
+    const vector<Loan*>& getLoans() const { return loans; }
 
-    // Add a new financial account
+    void setId(int ID) { this->id = ID; }
+
+    // Kiểm tra xác thực mật khẩu
+    bool checkPassword(const string& pw) const {
+        return pw == password;
+    }
+  
+    // ===== Account =====
+
+    // Thêm tài khoản mới cho User
     Account* addAccount(const string& name, double initialBalance = 0.0) {
         Account* account = new Account(name, initialBalance);
         accounts.push_back(account);
         return account;
     }
 
-    // Remove an account by ID
+    // Xóa tài khoản theo ID
     bool removeAccount(int accountId) {
         for (auto it = accounts.begin(); it != accounts.end(); ++it) {
             if ((*it)->getId() == accountId) {
@@ -494,7 +506,7 @@ public:
         return false;
     }
 
-    // Rename an existing account by ID
+    // Đổi tên tài khoản hiện có theo ID
     bool renameAccount(int accountId, const string& newName) {
         for (Account* acc : accounts) {
             if (acc->getId() == accountId) {
@@ -504,8 +516,7 @@ public:
         }
         return false;
     }
-
-    // Transfer money between two accounts of this user
+// Chuyển tiền nội bộ giữa các tài khoản của cùng User
     bool transfer(int fromAccountId, int toAccountId, double amount, const string& note = "") {
         if (fromAccountId == toAccountId) {
             cout << "Cannot transfer to the same account." << endl;
@@ -530,14 +541,15 @@ public:
             return false;
         }
         string today = getToday();
-        // Perform transfer: withdraw from source (as TRANSFER) and deposit to destination (as TRANSFER)
+        // Ghi nhận giao dịch chuyển tiền ở cả hai phía
         fromAcc->withdraw(amount, "Transfer to " + toAcc->getName(), "Transfer", note, today, TransactionType::TRANSFER);
         toAcc->deposit(amount, "Transfer from " + fromAcc->getName(), "Transfer", note, today, TransactionType::TRANSFER);
         cout << "Transferred " << amount << " from \"" << fromAcc->getName() << "\" to \"" << toAcc->getName() << "\"." << endl;
         return true;
     }
 
-    // Add a new Loan record (borrow or lend money)
+     // ===== Loan =====
+
     Loan* addLoan(LoanType type, const string& partnerName, double principal, double interestRate,
                   const string& startDate, const string& dueDate, const string& note = "") {
         Loan* loan = new Loan(type, partnerName, principal, interestRate, startDate, dueDate, note);
@@ -545,7 +557,7 @@ public:
         return loan;
     }
 
-    // Update loan information (interest rate or due date)
+    // Cập nhật thông tin khoản vay (lãi suất hoặc ngày đến hạn)
     bool updateLoan(int loanId, double newInterestRate = -1, const string& newDueDate = "") {
         for (Loan* loan : loans) {
             if (loan->getId() == loanId) {
@@ -557,7 +569,7 @@ public:
         return false;
     }
 
-    // Remove a loan by ID
+    // xóa khoản vay thông qua ID
     bool removeLoan(int loanId) {
         for (auto it = loans.begin(); it != loans.end(); ++it) {
             if ((*it)->getId() == loanId) {
@@ -568,10 +580,9 @@ public:
         }
         return false;
     }
-
-    // Generate a financial report (income/expense summary) for a given date range
+    // ===== Báo cáo =====
+    // Tổng hợp toàn bộ giao dịch từ các Account để sinh Report
     Report generateReport(const string& fromDate = "", const string& toDate = "") {
-        // Collect all transactions from all accounts in the specified range
         vector<Transaction*> allTx;
         for (Account* acc : accounts) {
             vector<Transaction*> rangeTx = acc->getTransactions(fromDate, toDate);
@@ -582,7 +593,7 @@ public:
         return report;
     }
 
-    // Compute total balance across all accounts
+    // Tổng số dư của toàn bộ tài khoản
     double getTotalBalance() const {
         double total = 0;
         for (Account* acc : accounts) {
@@ -591,35 +602,35 @@ public:
         return total;
     }
 
-    // List all accounts (with balances)
+    // danh sách Account
     void listAccounts() const {
         if (accounts.empty()) {
-            cout << "No accounts available." << endl;
+            cout << "danh sach rong" << endl;
         } else {
-            cout << "Accounts for user \"" << fullName << "\":" << endl;
+            cout << "tai khoan cho nguoi dung \"" << fullName << "\":" << endl;
             for (Account* acc : accounts) {
                 cout << "  [AccountID " << acc->getId() << "] " 
-                     << acc->getName() << " - Balance: " << acc->getBalance() << endl;
+                     << acc->getName() << " So du: " << acc->getBalance() << endl;
             }
         }
     }
 
-    // List all loans (with summary info)
+    // Liệt kê tất cả các khoản vay (kèm thông tin tóm tắt)
     void listLoans() const {
         if (loans.empty()) {
-            cout << "No loans recorded." << endl;
+            cout << "khong co khoan vay nao duoc ghi nhan" << endl;
         } else {
-            cout << "Loans for user \"" << fullName << "\":" << endl;
+            cout << " khoan vay danh cho nguoi dung \"" << fullName << "\":" << endl;
             for (Loan* loan : loans) {
-                // Update status if overdue (without permanently changing status in listing context)
+             // Kiểm tra quá hạn phục vụ hiển thị
                 string statusStr = loanStatusToString(loan->getStatus());
                 cout << "  [LoanID " << loan->getId() << "] "
-                     << (loan->getType() == LoanType::BORROW ? "Borrowed from " : "Lent to ")
+                     << (loan->getType() == LoanType::BORROW ? "muon " : "cho muon")
                      << loan->getPartnerName()
-                     << " | Principal: " << loan->getPrincipal()
-                     << " | Paid: " << loan->getPaidTotal()
-                     << " | Remaining: " << loan->getRemaining()
-                     << " | Status: " << statusStr << endl;
+                     << " | Tien goc: " << loan->getPrincipal()
+                     << " | Tra : " << loan->getPaidTotal()
+                     << " | con lai : " << loan->getRemaining()
+                     << " | tinh trang khoan vay o thoi diem hien tai: " << statusStr << endl;
             }
         }
     }
