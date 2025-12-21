@@ -495,16 +495,16 @@ public:
     }
 
     // Xóa tài khoản theo ID
-    bool removeAccount(int accountId) {
-        for (auto it = accounts.begin(); it != accounts.end(); ++it) {
-            if ((*it)->getId() == accountId) {
-                delete *it;
-                accounts.erase(it);
-                return true;
-            }
+   bool removeAccount(int accountId) {
+    for (int i = 0; i < accounts.size(); i++) {
+        if (accounts[i]->getId() == accountId) {
+            delete accounts[i];                    
+            accounts.erase(accounts.begin() + i);   
+            return true;
         }
-        return false;
     }
+    return false;
+}
 
     // Đổi tên tài khoản hiện có theo ID
     bool renameAccount(int accountId, const string& newName) {
@@ -519,7 +519,7 @@ public:
 // Chuyển tiền nội bộ giữa các tài khoản của cùng User
     bool transfer(int fromAccountId, int toAccountId, double amount, const string& note = "") {
         if (fromAccountId == toAccountId) {
-            cout << "Cannot transfer to the same account." << endl;
+            cout << "khong the chuyen tien trong cung 1 tai khoan" << endl;
             return false;
         }
         Account* fromAcc = nullptr;
@@ -529,22 +529,22 @@ public:
             if (acc->getId() == toAccountId)   toAcc   = acc;
         }
         if (fromAcc == nullptr || toAcc == nullptr) {
-            cout << "Account not found." << endl;
+            cout << "khong tim thay tai khoan " << endl;
             return false;
         }
         if (amount < 0) {
-            cout << "Amount must be positive!" << endl;
+            cout << "so tien phai la so duong" << endl;
             return false;
         }
         if (amount > fromAcc->getBalance()) {
-            cout << "Insufficient balance in source account." << endl;
+            cout << "so du trong tai khoan nguon khong du" << endl;
             return false;
         }
         string today = getToday();
         // Ghi nhận giao dịch chuyển tiền ở cả hai phía
-        fromAcc->withdraw(amount, "Transfer to " + toAcc->getName(), "Transfer", note, today, TransactionType::TRANSFER);
-        toAcc->deposit(amount, "Transfer from " + fromAcc->getName(), "Transfer", note, today, TransactionType::TRANSFER);
-        cout << "Transferred " << amount << " from \"" << fromAcc->getName() << "\" to \"" << toAcc->getName() << "\"." << endl;
+        fromAcc->withdraw(amount, "chuyen tien den" + toAcc->getName(), "chuyen khoan", note, today, TransactionType::TRANSFER);
+        toAcc->deposit(amount, "chuyen tien tu" + fromAcc->getName(), "chuyen khoan", note, today, TransactionType::TRANSFER);
+        cout << "da chuyen tien " << amount << " tu \"" << fromAcc->getName() << "\" den \"" << toAcc->getName() << "\"." << endl;
         return true;
     }
 
