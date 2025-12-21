@@ -7,12 +7,11 @@
 using namespace std;
 
 // Enum for transaction types
-enum class TransactionType { INCOME, EXPENSE, TRANSFER };
+enum class TransactionType { INCOME, EXPENSE };
 string transactionTypeToString(TransactionType t) {
     switch(t) {
         case TransactionType::INCOME:  return "INCOME";
         case TransactionType::EXPENSE: return "EXPENSE";
-        case TransactionType::TRANSFER:return "TRANSFER";
     }
     return "UNKNOWN";
 }
@@ -116,174 +115,117 @@ public:
 };
 int Transaction::nextId = 0;
 
-// Class Account: represents a financial account (cash, bank account, e-wallet, etc.)
-class Account {
-private:
-    static int nextId;
-    int id;
-    string name;
-    double balance;
-    vector<Transaction*> transactions;
-public:
-    Account(const string& name, double initialBalance = 0.0) {
-        this->id = ++nextId;
-        this->name = name;
-        this->balance = 0.0;
-        if (initialBalance != 0.0) {
-            // If initial balance is provided, record it as an initial deposit transaction
-            string today = getToday();
-            Transaction* initTx = new Transaction("Initial Balance", initialBalance, today,
-                                                  TransactionType::INCOME, "Initial", "Starting balance");
-            transactions.push_back(initTx);
-            balance += initialBalance;
+//========================================== ACCOUNT ============================================================
+class Account{
+    private:
+        string id;
+        string name;
+        long balance;
+        vector<Transaction>* transactionList; 
+    public:
+        Account(const string& id, const string& name, long initialBalance = 0) //số dư ban đầu = 0
+        {
+            this->id = id;
+            this->name = name;
+            this->balance = initialBalance;
+            transactionList = new vector<Transaction>();
         }
-    }
-    ~Account() {
-        // Free all dynamically allocated transactions
-        for (Transaction* tx : transactions) {
-            delete tx;
+        ~Account() { delete transactionList; }
+        const string& getName() const { return name; }
+        double getBalance() const { return balance; }
+       Transaction deposit (const string& title, long amount, const string& date, const string& category, const string& note) 
+        { //thu
+            if (amount <= 0){
+                throw invalid_argument("So tien khong duoc nho hon hoac bang 0");
+            }
+            Transaction trans(title, amount, date, TransactionType::INCOME, category, note);         
+            return trans;
         }
-    }
-    int getId() const        { return id; }
-    string getName() const   { return name; }
-    double getBalance() const{ return balance; }
-    void setName(const string& newName) { name = newName; }
+        Transaction withdraw (const string& title ,long amount, const string& date, const string& category, const string& note)
+        { //chi 
+            if (amount <= 0)
+                throw invalid_argument("So tien khong duoc nho hon hoac bang 0");
 
-    // Deposit money into this account (creates an INCOME transaction)
-    void deposit(double amount, const string& title, const string& category = "",
-                 const string& note = "", const string& date = "", 
-                 TransactionType type = TransactionType::INCOME) {
-        if (amount < 0) {
-            cout << "Amount must be non-negative!" << endl;
-            return;
-        }
-        string txDate = date.empty() ? getToday() : date;
-        Transaction* tx = new Transaction(title, amount, txDate, type, category, note);
-        transactions.push_back(tx);
-        // Increase balance (for deposit or incoming transfer)
-        balance += amount;
-    }
+            if (this->balance < amount)
+                throw runtime_error("So du khong du");
 
-    // Withdraw money from this account (creates an EXPENSE transaction)
-    bool withdraw(double amount, const string& title, const string& category = "",
-                  const string& note = "", const string& date = "",
-                  TransactionType type = TransactionType::EXPENSE) {
-        if (amount < 0) {
-            cout << "Amount must be non-negative!" << endl;
-            return false;
+            Transaction trans(title, amount, date, TransactionType::EXPENSE, category, note);
+            return trans;
         }
-        if (amount > balance) {
-            cout << "Insufficient balance for withdrawal!" << endl;
-            return false;
+
+        void addTransaction (const Transaction& tx) {
+            transactionList->push_back(tx);
+            // cập nhật số dư
+            if(tx.getType() == TransactionType::INCOME ) {
+                this->balance += tx.getAmount();
+            } else if(tx.getType() == TransactionType::EXPENSE ) {
+                this->balance -= tx.getAmount();
+            }
         }
-        string txDate = date.empty() ? getToday() : date;
-        Transaction* tx = new Transaction(title, amount, txDate, type, category, note);
-        transactions.push_back(tx);
-        // Decrease balance (for withdrawal or outgoing transfer)
-        balance -= amount;
-        return true;
-    }
+        bool editTransaction(const string& txId, const Transaction& updated) {
+            for (int i = 0; i < transactionList->size(); ++i) {
+                Transaction t = (*transactionList)[i];
+                if (to_string(t.id) == txId) {
+                    // xóa bỏ loại giao dịch + trả lại số dư trước đó
+                    if (t.getType() == TransactionType::INCOME) 
+                        this->balance -= t.getAmount();
+                    else if (t.getType() == TransactionType::EXPENSE) 
+                        this->balance += t.getAmount();
+                    
+                    t.title = updated.title;
+                    t.amount = updated.amount;
+                    t.date = updated.date;
+                    t.type = updated.type;
+                    t.category = updated.category;
+                    t.note = updated.note;
+                    // id không thay đổi
 
-    // (Optional) Add an existing transaction record to this account (used internally for transfer logic)
-    void addTransaction(Transaction* tx) {
-        transactions.push_back(tx);
-    }
+                    // cập nhật số dư sau update
+                    if (t.getType() == TransactionType::INCOME)
+                        this->balance += t.getAmount();
+                    else if (t.getType() == TransactionType::EXPENSE)
+                        this->balance -= t.getAmount();
+                    return true;
+                }
+            }
+            return false; // không tìm thấy ID 
+        }
 
-    // Edit a transaction's details (title, amount, category, note, date)
-    bool editTransaction(int txId, const string& newTitle = "", double newAmount = -1,
-                         const string& newCategory = "", const string& newNote = "", const string& newDate = "") {
-        for (Transaction* tx : transactions) {
-            if (tx->getId() == txId) {
-                double oldAmount = tx->getAmount();
-                TransactionType type = tx->getType();
-                // Update provided fields
-                if (!newTitle.empty())    tx->setTitle(newTitle);
-                if (!newCategory.empty()) tx->setCategory(newCategory);
-                if (!newNote.empty())     tx->setNote(newNote);
-                if (!newDate.empty())     tx->setDate(newDate);
-                if (newAmount >= 0) {
-                    // Adjust balance for amount change
-                    if (type == TransactionType::INCOME || type == TransactionType::TRANSFER) {
-                        // Income or incoming transfer: balance was increased by oldAmount
-                        // Adjust by the difference
-                        double diff = newAmount - oldAmount;
-                        balance += diff;
-                    } else if (type == TransactionType::EXPENSE) {
-                        // Expense or outgoing transfer: balance was reduced by oldAmount
-                        // Adjust by the difference (inverse effect)
-                        double diff = newAmount - oldAmount;
-                        balance -= diff;
+        bool removeTransaction(const string& txId) {
+            if (transactionList->empty()) return false; //nếu danh sách rỗng
+            for (int i = 0; i < transactionList->size(); ++i) {
+                Transaction& t = (*transactionList)[i];
+                if (to_string(t.id) == txId) {
+                    //trả lại số dư trước đó
+                    if (t.getType() == TransactionType::INCOME) {
+                        balance -= t.getAmount();
+                    } else if (t.getType() == TransactionType::EXPENSE) {
+                        balance += t.getAmount();
                     }
-                    tx->setAmount(newAmount);
+                    //xóa giao dịch
+                    transactionList->erase(transactionList->begin() + i);
+                    return true;
                 }
-                return true;
             }
+            return false; // không tìm thấy ID 
         }
-        return false;
-    }
-
-    // Remove a transaction by ID (and adjust balance accordingly)
-    bool removeTransaction(int txId) {
-        for (auto it = transactions.begin(); it != transactions.end(); ++it) {
-            Transaction* tx = *it;
-            if (tx->getId() == txId) {
-                // Reverse the balance effect of this transaction
-                if (tx->getType() == TransactionType::INCOME) {
-                    balance -= tx->getAmount();
-                } else if (tx->getType() == TransactionType::EXPENSE) {
-                    balance += tx->getAmount();
-                } else if (tx->getType() == TransactionType::TRANSFER) {
-                    // Cannot accurately adjust balance for a transfer without knowing direction (skip adjustment)
+        long getBalance() {
+            return this->balance;
+        }
+        //get các giao dịch trong khoảng từ fromDate đến toDate
+        vector<Transaction> getTransactions(const string& fromDate, const string& toDate) const {
+            vector<Transaction> result;
+            if (fromDate > toDate) return result; // trả về rỗng nếu khoảng sai
+            for (const Transaction& t : *transactionList) {
+                const string& d = t.getDate();
+                if (d >= fromDate && d <= toDate) {
+                    result.push_back(t);
                 }
-                delete tx;
-                transactions.erase(it);
-                return true;
             }
+            return result;
         }
-        return false;
-    }
+//=========================================================================================================
 
-    // Get transactions within a date range [fromDate, toDate] (inclusive).
-    // If fromDate or toDate is empty, it is unbounded on that end.
-    vector<Transaction*> getTransactions(const string& fromDate = "", const string& toDate = "") const {
-        vector<Transaction*> result;
-        for (Transaction* tx : transactions) {
-            if ((fromDate.empty() || tx->getDate() >= fromDate) &&
-                (toDate.empty()   || tx->getDate() <= toDate)) {
-                result.push_back(tx);
-            }
-        }
-        return result;
-    }
-
-    // List all transactions of this account (for console display)
-    void listTransactions() const {
-        if (transactions.empty()) {
-            cout << "No transactions for account \"" << name << "\"." << endl;
-            return;
-        }
-        cout << "Transactions for account \"" << name << "\" (Balance: " << balance << "):" << endl;
-        for (Transaction* tx : transactions) {
-            // Determine sign for display
-            string sign;
-            if (tx->getType() == TransactionType::INCOME)       sign = "+";
-            else if (tx->getType() == TransactionType::EXPENSE) sign = "-";
-            else if (tx->getType() == TransactionType::TRANSFER) {
-                // For transfers, determine sign based on title convention ("Transfer to..." = outflow, "Transfer from..." = inflow)
-                if (tx->getTitle().rfind("Transfer to", 0) == 0)   sign = "-";
-                else if (tx->getTitle().rfind("Transfer from", 0) == 0) sign = "+";
-                else sign = "";
-            }
-            cout << "  [TxID " << tx->getId() << "] "
-                 << tx->getDate() << " | " << tx->getTitle() 
-                 << " | " << sign << tx->getAmount()
-                 << " | Type: " << transactionTypeToString(tx->getType());
-            if (!tx->getCategory().empty()) cout << " (" << tx->getCategory() << ")";
-            if (!tx->getNote().empty())     cout << " | Note: " << tx->getNote();
-            cout << endl;
-        }
-    }
-};
 int Account::nextId = 0;
 
 // Class Loan: represents a borrowing or lending record
