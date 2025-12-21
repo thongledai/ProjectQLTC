@@ -115,7 +115,7 @@ public:
 };
 int Transaction::nextId = 0;
 
-//========================================== ACCOUNT ============================================================
+// class Account đại diện cho một tài khoản tài chính cụ thể (ví dụ: tiền mặt, ngân hàng, ví điện tử)
 class Account{
     private:
         string id;
@@ -163,28 +163,28 @@ class Account{
             }
         }
         bool editTransaction(const string& txId, const Transaction& updated) {
-            for (int i = 0; i < transactionList->size(); ++i) {
-                Transaction t = (*transactionList)[i];
-                if (to_string(t.id) == txId) {
+            for (size_t i = 0; i < transactionList->size(); ++i) {
+                Transaction* t = &transactionList->at(i);
+                if (to_string(t->id) == txId) {
                     // xóa bỏ loại giao dịch + trả lại số dư trước đó
-                    if (t.getType() == TransactionType::INCOME) 
-                        this->balance -= t.getAmount();
-                    else if (t.getType() == TransactionType::EXPENSE) 
-                        this->balance += t.getAmount();
+                    if (t->getType() == TransactionType::INCOME) 
+                        this->balance -= t->getAmount();
+                    else if (t->getType() == TransactionType::EXPENSE) 
+                        this->balance += t->getAmount();
                     
-                    t.title = updated.title;
-                    t.amount = updated.amount;
-                    t.date = updated.date;
-                    t.type = updated.type;
-                    t.category = updated.category;
-                    t.note = updated.note;
-                    // id không thay đổi
+                    t->title = updated.title;
+                    t->amount = updated.amount;
+                    t->date = updated.date;
+                    t->type = updated.type;
+                    t->category = updated.category;
+                    t->note = updated.note;
+                    // t.id không thay đổi
 
                     // cập nhật số dư sau update
-                    if (t.getType() == TransactionType::INCOME)
-                        this->balance += t.getAmount();
-                    else if (t.getType() == TransactionType::EXPENSE)
-                        this->balance -= t.getAmount();
+                    if (t->getType() == TransactionType::INCOME)
+                        this->balance += t->getAmount();
+                    else if (t->getType() == TransactionType::EXPENSE)
+                        this->balance -= t->getAmount();
                     return true;
                 }
             }
@@ -193,14 +193,14 @@ class Account{
 
         bool removeTransaction(const string& txId) {
             if (transactionList->empty()) return false; //nếu danh sách rỗng
-            for (int i = 0; i < transactionList->size(); ++i) {
-                Transaction& t = (*transactionList)[i];
-                if (to_string(t.id) == txId) {
+            for (size_t i = 0; i < transactionList->size(); ++i) {
+                Transaction* t = &transactionList->at(i);
+                if (to_string(t->id) == txId) {
                     //trả lại số dư trước đó
-                    if (t.getType() == TransactionType::INCOME) {
-                        balance -= t.getAmount();
-                    } else if (t.getType() == TransactionType::EXPENSE) {
-                        balance += t.getAmount();
+                    if (t->getType() == TransactionType::INCOME) {
+                        balance -= t->getAmount();
+                    } else if (t->getType() == TransactionType::EXPENSE) {
+                        balance += t->getAmount();
                     }
                     //xóa giao dịch
                     transactionList->erase(transactionList->begin() + i);
@@ -224,7 +224,7 @@ class Account{
             }
             return result;
         }
-//=========================================================================================================
+};
 
 int Account::nextId = 0;
 
