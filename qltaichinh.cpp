@@ -539,8 +539,8 @@ public:
     }
 
     // Tổng số dư của toàn bộ tài khoản
-    double getTotalBalance() const {
-        double total = 0;
+    long getTotalBalance() const {
+        long total = 0;
         for (Account* acc : accounts) {
             total += acc->getBalance();
         }
