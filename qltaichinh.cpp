@@ -77,7 +77,7 @@ public:
 };
 int Payment::nextId = 0;
 
-// Class Transaction: represents a financial transaction (income, expense, or transfer)
+// Class Transaction: thể hiện một giao dịch tài chính: thu (income), chi (expense), chuyển khoản (transfer)
 class Transaction {
 private:
     static int nextId;
@@ -106,6 +106,7 @@ public:
     TransactionType getType() const { return type; }
     string getCategory() const { return category; }
     string getNote() const     { return note; }
+
     void setTitle(const string& newTitle)     { title = newTitle; }
     void setAmount(double newAmount)          { amount = newAmount; }
     void setDate(const string& newDate)       { date = newDate; }
