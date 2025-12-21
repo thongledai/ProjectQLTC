@@ -121,16 +121,16 @@ class Account{
         string id;
         string name;
         long balance;
-        vector<Transaction>* transactionList; 
+        vector<Transaction>* transactions; 
     public:
         Account(const string& id, const string& name, long initialBalance = 0) //số dư ban đầu = 0
         {
             this->id = id;
             this->name = name;
             this->balance = initialBalance;
-            transactionList = new vector<Transaction>();
+            transactions = new vector<Transaction>();
         }
-        ~Account() { delete transactionList; }
+        ~Account() { delete transactions; }
         const string& getName() const { return name; }
         double getBalance() const { return balance; }
        Transaction deposit (const string& title, long amount, const string& date, const string& category, const string& note) 
@@ -154,7 +154,7 @@ class Account{
         }
 
         void addTransaction (const Transaction& tx) {
-            transactionList->push_back(tx);
+            transactions->push_back(tx);
             // cập nhật số dư
             if(tx.getType() == TransactionType::INCOME ) {
                 this->balance += tx.getAmount();
@@ -163,8 +163,8 @@ class Account{
             }
         }
         bool editTransaction(const string& txId, const Transaction& updated) {
-            for (size_t i = 0; i < transactionList->size(); ++i) {
-                Transaction* t = &transactionList->at(i);
+            for (size_t i = 0; i < transactions->size(); ++i) {
+                Transaction* t = &transactions->at(i);
                 if (to_string(t->id) == txId) {
                     // xóa bỏ loại giao dịch + trả lại số dư trước đó
                     if (t->getType() == TransactionType::INCOME) 
@@ -192,9 +192,9 @@ class Account{
         }
 
         bool removeTransaction(const string& txId) {
-            if (transactionList->empty()) return false; //nếu danh sách rỗng
-            for (size_t i = 0; i < transactionList->size(); ++i) {
-                Transaction* t = &transactionList->at(i);
+            if (transactions->empty()) return false; //nếu danh sách rỗng
+            for (size_t i = 0; i < transactions->size(); ++i) {
+                Transaction* t = &transactions->at(i);
                 if (to_string(t->id) == txId) {
                     //trả lại số dư trước đó
                     if (t->getType() == TransactionType::INCOME) {
@@ -202,8 +202,8 @@ class Account{
                     } else if (t->getType() == TransactionType::EXPENSE) {
                         balance += t->getAmount();
                     }
-                    //xóa giao dịch
-                    transactionList->erase(transactionList->begin() + i);
+                    //xóa gd
+                    transactions->erase(transactions->begin() + i);
                     return true;
                 }
             }
@@ -212,19 +212,14 @@ class Account{
         long getBalance() {
             return this->balance;
         }
-        //get các giao dịch trong khoảng từ fromDate đến toDate
-        vector<Transaction> getTransactions(const string& fromDate, const string& toDate) const {
-            vector<Transaction> result;
-            if (fromDate > toDate) return result; // trả về rỗng nếu khoảng sai
-            for (const Transaction& t : *transactionList) {
-                const string& d = t.getDate();
-                if (d >= fromDate && d <= toDate) {
-                    result.push_back(t);
-                }
-            }
-            return result;
+        //báo cáo các giao dịch trong khoảng từ fromDate đến toDate
+        void reportTrans(const string& fromDate, const string& toDate){
+            Report report(fromDate, toDate);
+            report.build(transactions);
+            report.display();
         }
 };
+
 
 int Account::nextId = 0;
 
@@ -363,7 +358,7 @@ public:
     }
 
     // Tổng hợp dữ liệu cho bài báo cáo từ danh sách giao dịch Transaction
-    void build(const vector<Transaction*>& transactions) {
+    void build(const vector<Transaction>* transactions) {
         this->totalIncome = 0;
         this->totalExpense = 0;
         this->netChange =0;
