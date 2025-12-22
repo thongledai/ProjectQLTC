@@ -696,9 +696,7 @@ public:
     }
 
     // Lấy thông tin User đang đăng nhập
-    User* getCurrentUser() const {
-        return currentUser;
-    }
+    User* getCurrentUser() const { return currentUser; }
 
     // Xuất dữ liệu ra file CSV
     void exportDataCSV(const string& filename) {
