@@ -321,7 +321,7 @@ public:
     void setInterestRate(double rate)       { interestRate = rate; }
     void setDueDate(const string& date)     { dueDate = date; }
     
-    // Tính tổng số tiền đã thanh toán
+    // Tổng số tiền đã thanh toán
     long getPaidTotal() const {
         double total = 0;
         for (Payment* p : payments) {
@@ -330,18 +330,19 @@ public:
         return total;
     }
     
-    long totalPaid = getPaidTotal(); // số tiền đã trả
-    long totalDue = principal + principal * interestRate / 100.0; // Tổng nợ
+    // Tổng số tiền nợ
+    long getDueTotal() const{
+        return principal + principal * interestRate / 100.0;
+    }
     
     // Số tiền còn nợ
     long getRemaining() const {
-        double rem = totalDue - totalPaid;
+        double rem = getDueTotal() - getPaidTotal();
         return (rem < 0 ? 0 : rem);
     }
-    long totalRemain = getRemaining();
     
     // Thanh toán
-    void addPayment(double amount, const string& date, const string& note = "") {
+    void addPayment(long amount, const string& date, const string& note = "") {
         if (amount <= 0) {
             cout << "So tien thanh toan phai duong" << endl;
             return;
@@ -349,10 +350,10 @@ public:
         Payment* payment = new Payment(amount, date, note);
         payments.push_back(payment);
 
-        if (totalRemain<=0) {
+        if (getRemaining()<=0) {
             status = LoanStatus::PAID;
         } else {
-            if (totalPaid > 0) {
+            if (getPaidTotal()> 0) {
                 status = LoanStatus::PARTIALLY_PAID;
             }
             string today = getToday();
