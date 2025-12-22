@@ -683,23 +683,23 @@ public:
     }
 };
 
-// Class Menu: handles the user interaction menu system
+// Class Menu: quản lý giao diện và menu tương tác với người dùng
 class Menu {
 private:
     App& app;
 public:
     Menu(App& appRef) : app(appRef) {}
 
-    // Display menu for not logged-in state
+    // Menu dành cho user chưa đăng nhập
     void showMainMenu() {
-        cout << "\n==== Personal Finance Management ====\n";
-        cout << "1. Register\n";
-        cout << "2. Login\n";
-        cout << "3. Exit\n";
-        cout << "Choose an option: ";
+        cout << "\n==== UNG DUNG QUAN LY TAI CHINH CA NHAN ====\n";
+        cout << "1. Dang ky\n";
+        cout << "2. Dang nhap\n";
+        cout << "3. Thoat\n";
+        cout << "Nhap lua chon: ";
     }
 
-    // Display menu for logged-in state (current user)
+    // Menu dành cho user đã đăng nhập (user hiện tại)
     void showUserMenu(const string& userName) {
         cout << "\n==== Main Menu (User: " << userName << ") ====\n";
         cout << "1. Add Account\n";
