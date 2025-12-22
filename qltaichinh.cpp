@@ -6,6 +6,25 @@
 #include <limits>
 using namespace std;
 
+// Danh sâch các class
+class Transaction;
+class Account;
+class Loan;
+class Payment;
+class Report;
+class User;
+class App;
+class Menu;
+
+// Lấy ngày hiện tại và chuyển sang string YYYY-MM-DD
+string getToday() {
+    time_t t = time(NULL);
+    tm *timePtr = localtime(&t);
+    char buf[11];
+    strftime(buf, 11, "%Y-%m-%d", timePtr);
+    return string(buf);
+}
+
 // Thanh toán khoản vay
 class Payment {
 private:
@@ -37,49 +56,6 @@ string transactionTypeToString(TransactionType t) {
     }
     return "UNKNOWN";
 }
-
-
-// Utility to get current date as YYYY-MM-DD string
-string getToday() {
-    time_t t = time(NULL);
-    tm *timePtr = localtime(&t);
-    char buf[11];
-    strftime(buf, 11, "%Y-%m-%d", timePtr);
-    return string(buf);
-}
-
-// Forward declarations for classes
-class Transaction;
-class Account;
-class Loan;
-class Payment;
-class Report;
-class User;
-class App;
-class Menu;
-
-// Class Payment: represents a payment made towards a Loan
-class Payment {
-private:
-    static int nextId;
-    int id;
-    double amount;
-    string date;
-    string note;
-public:
-    Payment(double amount, const string& date, const string& note = "") {
-        this->id = ++nextId;
-        this->amount = amount;
-        this->date = date;
-        this->note = note;
-    }
-    int getId() const       { return id; }
-    double getAmount() const{ return amount; }
-    string getDate() const  { return date; }
-    string getNote() const  { return note; }
-    void setNote(const string& newNote) { note = newNote; }
-};
-int Payment::nextId = 0;
 
 // Class Transaction: represents a financial transaction (income, expense, or transfer)
 class Transaction {
@@ -242,8 +218,6 @@ class Account{
             report.display();
         }
 };
-
-
 int Account::nextId = 0;
 
 // BROROW: user đi vay tiền người khác
@@ -268,7 +242,6 @@ string loanStatusToString(LoanStatus s) {
     }
     return "UNKNOWN";
 }
-
 
 // Class Loan: hồ sơ vay và cho vay
 class Loan {
