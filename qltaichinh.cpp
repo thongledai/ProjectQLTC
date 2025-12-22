@@ -400,8 +400,8 @@ public:
         //Kiểm tra nếu dữ liệu nhập vào không hợp lệ thì kết thúc hàm
         if (this->fromDate > this->toDate) return;
             
-        for (int i=0; i<transactions->size(); i++){
-            const Transaction* tx = &transactions->at(i);
+        for (int i=0; i<transactions.size(); i++){
+            const Transaction* tx = &transactions.at(i);
 
             // Bỏ qua nếu giao dịch nằm ngoài kỳ báo cáo
             if (tx->getDate() < this->fromDate || tx->getDate() > this->toDate)
