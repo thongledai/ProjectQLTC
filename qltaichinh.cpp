@@ -85,7 +85,7 @@ int Payment::nextId = 0;
 class Transaction {
 private:
     static int nextId;
-    int id;
+    
     string title;
     double amount;
     string date;
@@ -93,6 +93,7 @@ private:
     string category;
     string note;
 public:
+int id;
     Transaction(const string& title, double amount, const string& date, TransactionType type,
                 const string& category = "", const string& note = "") {
         this->id = ++nextId;
@@ -123,6 +124,7 @@ int Transaction::nextId = 0;
 // class Account đại diện cho một tài khoản tài chính cụ thể (ví dụ: tiền mặt, ngân hàng, ví điện tử)
 class Account{
     private:
+        static int nextId;
         int id;
         string name;
         long balance;
@@ -141,13 +143,25 @@ class Account{
         //các hàm get-set
         int getId() const { return id; }
         void setId(int newId) { id = newId; }
-
         const string& getName() const { return name; }
         void setName(const string& newName) { name = newName; }
-
         long getBalance() const { return balance; }
         void setBalance(long newBalance) { balance = newBalance; }
-        const string& getName() const { return name; }
+        const vector<Transaction*>& getTransactions() const { return transactions; }
+
+        // Trả về danh sách giao dịch trong khoảng [fromDate, toDate].
+        // Nếu fromDate hoặc toDate rỗng thì không áp giới hạn tương ứng.
+        vector<Transaction*> getTransactions(const string& fromDate = "", const string& toDate = "") const {
+            vector<Transaction*> result;
+            for (Transaction* t : transactions) {
+                const string& d = t->getDate();
+                if (!fromDate.empty() && d < fromDate) continue;
+                if (!toDate.empty()   && d > toDate)   continue;
+                result.push_back(t);
+            }
+            return result;
+        }
+
         Transaction deposit (const string& title, long amount, const string& date, const string& category, const string& note) 
         { //thu
             if (amount <= 0){
@@ -177,10 +191,10 @@ class Account{
                 this->balance -= tx.getAmount();
             }
         }
-        bool editTransaction(const string& txId, const Transaction& updated) {
+        bool editTransaction(const int& txId, const Transaction& updated) {
             for (size_t i = 0; i < transactions.size(); ++i) {
                 Transaction* t = transactions.at(i);
-                if (to_string(t->id) == txId) {
+                if (t->id == txId) {
                     // xóa bỏ loại giao dịch + trả lại số dư trước đó
                     if (t->getType() == TransactionType::INCOME) 
                         this->balance -= t->getAmount();
@@ -206,11 +220,11 @@ class Account{
             return false; // không tìm thấy ID 
         }
 
-        bool removeTransaction(const string& txId) {
+        bool removeTransaction(const int& txId) {
             if (transactions.empty()) return false; //nếu danh sách rỗng
             for (size_t i = 0; i < transactions.size(); ++i) {
                 Transaction* t = transactions.at(i);
-                if (to_string(t->id) == txId) {
+                if (t->id == txId) {
                     //xóa gd
                     transactions.erase(transactions.begin() + i);
                     return true;
@@ -392,7 +406,7 @@ public:
     }
 
     // Tổng hợp dữ liệu cho bài báo cáo từ danh sách giao dịch Transaction
-    void build(const vector<Transaction>& transactions) {
+    void build(const vector<Transaction*> transactions) {
         this->totalIncome = 0;
         this->totalExpense = 0;
         this->netChange =0;
@@ -401,7 +415,7 @@ public:
         if (this->fromDate > this->toDate) return;
             
         for (int i=0; i<transactions.size(); i++){
-            const Transaction* tx = &transactions.at(i);
+            const Transaction* tx = transactions.at(i);
 
             // Bỏ qua nếu giao dịch nằm ngoài kỳ báo cáo
             if (tx->getDate() < this->fromDate || tx->getDate() > this->toDate)
@@ -480,8 +494,8 @@ public:
     // ===== Account =====
 
     // Thêm tài khoản mới cho User
-    Account* addAccount(const string& name, double initialBalance = 0.0) {
-        Account* account = new Account(name, initialBalance);
+    Account* addAccount(const int& id,const string& name, double initialBalance = 0.0) {
+        Account* account = new Account(id, name, initialBalance);
         accounts.push_back(account);
         return account;
     }
