@@ -16,23 +16,6 @@ string transactionTypeToString(TransactionType t) {
     return "UNKNOWN";
 }
 
-// Enum for loan types (borrow or lend)
-enum class LoanType { BORROW, LEND };
-string loanTypeToString(LoanType t) {
-    return (t == LoanType::BORROW ? "BORROW" : "LEND");
-}
-
-// Enum for loan status
-enum class LoanStatus { OPEN, PARTIALLY_PAID, PAID, OVERDUE };
-string loanStatusToString(LoanStatus s) {
-    switch(s) {
-        case LoanStatus::OPEN:           return "OPEN";
-        case LoanStatus::PARTIALLY_PAID: return "PARTIALLY_PAID";
-        case LoanStatus::PAID:           return "PAID";
-        case LoanStatus::OVERDUE:        return "OVERDUE";
-    }
-    return "UNKNOWN";
-}
 
 // Utility to get current date as YYYY-MM-DD string
 string getToday() {
@@ -223,24 +206,70 @@ class Account{
 
 int Account::nextId = 0;
 
-// Class Loan: represents a borrowing or lending record
-class Loan {
+// BROROW: user đi vay tiền người khác
+// LEND: user cho vay tiền
+enum class LoanType { BORROW, LEND };
+string loanTypeToString(LoanType t) {
+    return (t == LoanType::BORROW ? "BORROW" : "LEND");
+}
+
+// Trạng thái khoản vay
+// OPEN: chưa thanh toán
+// PAR: đã trả 1 ít
+// PAID: đã trả hết
+// OVER: đã quá hạn
+enum class LoanStatus { OPEN, PARTIALLY_PAID, PAID, OVERDUE };
+string loanStatusToString(LoanStatus s) {
+    switch(s) {
+        case LoanStatus::OPEN:           return "OPEN";
+        case LoanStatus::PARTIALLY_PAID: return "PARTIALLY_PAID";
+        case LoanStatus::PAID:           return "PAID";
+        case LoanStatus::OVERDUE:        return "OVERDUE";
+    }
+    return "UNKNOWN";
+}
+
+// Thanh toán khoản vay
+class Payment {
 private:
     static int nextId;
     int id;
-    LoanType type;
+    long amount;
+    string date;
+    string note;
+public:
+    Payment(long amount, const string& date, const string& note = "") {
+        this->id = ++nextId;
+        this->amount = amount;
+        this->date = date;
+        this->note = note;
+    }
+    int getId() const { return id; }
+    long getAmount() const{ return amount; }
+    string getDate() const  { return date; }
+    string getNote() const  { return note; }
+};
+int Payment::nextId = 0;
+
+// Class Loan: hồ sơ vay và cho vay
+class Loan {
+private:
+    static int nextId; 
+    int id;
+    LoanType type; 
     string partnerName;
-    double principal;
-    double interestRate;
+    long principal; // tiền gốc
+    double interestRate; // lãi xuất
     string startDate;
     string dueDate;
     LoanStatus status;
     vector<Payment*> payments;
     string note;
+
 public:
-    Loan(LoanType type, const string& partnerName, double principal, double interestRate,
+    Loan(LoanType type, const string& partnerName, long principal, double interestRate,
          const string& startDate, const string& dueDate, const string& note = "") {
-        this->id = ++nextId;
+        this->id = ++nextId; // cấp ID tự động
         this->type = type;
         this->partnerName = partnerName;
         this->principal = principal;
@@ -250,40 +279,61 @@ public:
         this->note = note;
         this->status = LoanStatus::OPEN;
     }
+
     ~Loan() {
-        // Free all Payment objects
         for (Payment* p : payments) {
             delete p;
         }
     }
+
+    //getter
     int getId() const         { return id; }
     LoanType getType() const  { return type; }
     string getPartnerName() const { return partnerName; }
-    double getPrincipal() const   { return principal; }
+    long getPrincipal() const   { return principal; }
     double getInterestRate() const{ return interestRate; }
     string getStartDate() const   { return startDate; }
     string getDueDate() const     { return dueDate; }
     LoanStatus getStatus() const  { return status; }
     string getNote() const        { return note; }
+    
+    //setter
     void setPartnerName(const string& name) { partnerName = name; }
     void setInterestRate(double rate)       { interestRate = rate; }
     void setDueDate(const string& date)     { dueDate = date; }
-    void setNote(const string& newNote)     { note = newNote; }
-
-    // Record a payment towards this loan
+    
+    // Tính tổng số tiền đã thanh toán
+    long getPaidTotal() const {
+        double total = 0;
+        for (Payment* p : payments) {
+            total += p->getAmount();
+        }
+        return total;
+    }
+    
+    long totalPaid = getPaidTotal(); // số tiền đã trả
+    long totalDue = principal + principal * interestRate / 100.0; // Tổng nợ
+    
+    // Số tiền còn nợ
+    long getRemaining() const {
+        double rem = totalDue - totalPaid;
+        return (rem < 0 ? 0 : rem);
+    }
+    long totalRemain = getRemaining();
+    
+    // Thanh toán
     void addPayment(double amount, const string& date, const string& note = "") {
         if (amount <= 0) {
-            cout << "Payment amount must be positive!" << endl;
+            cout << "So tien thanh toan phai duong" << endl;
             return;
         }
         Payment* payment = new Payment(amount, date, note);
         payments.push_back(payment);
-        // Update loan status after payment
-        double paidTotal = getPaidTotal();
-        if (paidTotal >= principal) {
+
+        if (totalRemain<=0) {
             status = LoanStatus::PAID;
         } else {
-            if (paidTotal > 0) {
+            if (totalPaid > 0) {
                 status = LoanStatus::PARTIALLY_PAID;
             }
             string today = getToday();
@@ -293,27 +343,7 @@ public:
         }
     }
 
-    // Calculate total paid amount so far
-    double getPaidTotal() const {
-        double total = 0;
-        for (Payment* p : payments) {
-            total += p->getAmount();
-        }
-        return total;
-    }
-
-    // Calculate remaining amount (principal minus paid)
-    double getRemaining() const {
-        double rem = principal - getPaidTotal();
-        return (rem < 0 ? 0 : rem);
-    }
-
-    // Mark the loan as fully paid
-    void markPaid() {
-        status = LoanStatus::PAID;
-    }
-
-    // Check if loan is overdue as of a given date (and update status if so)
+    // Kiểm tra khoản vay có bị quá hạn không
     bool isOverdue(const string& today) {
         if (status != LoanStatus::PAID && today > dueDate) {
             status = LoanStatus::OVERDUE;
@@ -322,7 +352,7 @@ public:
         return false;
     }
 
-    // List all payments made for this loan
+    // In ra danh sách đã thanh toán
     void listPayments() const {
         if (payments.empty()) {
             cout << "No payments recorded for this loan." << endl;
@@ -338,7 +368,6 @@ public:
     }
 };
 int Loan::nextId = 0;
-
 
 // Class Report: báo cáo tài chính (thu nhập, chi tiêu, chênh lệch thu chi) trong 1 khoảng thời gian
 class Report {
