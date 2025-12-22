@@ -6,6 +6,28 @@
 #include <limits>
 using namespace std;
 
+// Thanh toán khoản vay
+class Payment {
+private:
+    static int nextId;
+    int id;
+    long amount;
+    string date;
+    string note;
+public:
+    Payment(long amount, const string& date, const string& note = "") {
+        this->id = ++nextId;
+        this->amount = amount;
+        this->date = date;
+        this->note = note;
+    }
+    int getId() const { return id; }
+    long getAmount() const{ return amount; }
+    string getDate() const  { return date; }
+    string getNote() const  { return note; }
+};
+int Payment::nextId = 0;
+
 // Enum for transaction types
 enum class TransactionType { INCOME, EXPENSE };
 string transactionTypeToString(TransactionType t) {
@@ -229,27 +251,6 @@ string loanStatusToString(LoanStatus s) {
     return "UNKNOWN";
 }
 
-// Thanh toán khoản vay
-class Payment {
-private:
-    static int nextId;
-    int id;
-    long amount;
-    string date;
-    string note;
-public:
-    Payment(long amount, const string& date, const string& note = "") {
-        this->id = ++nextId;
-        this->amount = amount;
-        this->date = date;
-        this->note = note;
-    }
-    int getId() const { return id; }
-    long getAmount() const{ return amount; }
-    string getDate() const  { return date; }
-    string getNote() const  { return note; }
-};
-int Payment::nextId = 0;
 
 // Class Loan: hồ sơ vay và cho vay
 class Loan {
