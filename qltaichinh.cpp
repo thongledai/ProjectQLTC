@@ -138,9 +138,17 @@ class Account{
             for (auto p : transactions) delete p;
             transactions.clear();
         }
+        //các hàm get-set
+        int getId() const { return id; }
+        void setId(int newId) { id = newId; }
+
         const string& getName() const { return name; }
-        double getBalance() const { return balance; }
-       Transaction deposit (const string& title, long amount, const string& date, const string& category, const string& note) 
+        void setName(const string& newName) { name = newName; }
+
+        long getBalance() const { return balance; }
+        void setBalance(long newBalance) { balance = newBalance; }
+        const string& getName() const { return name; }
+        Transaction deposit (const string& title, long amount, const string& date, const string& category, const string& note) 
         { //thu
             if (amount <= 0){
                 throw invalid_argument("So tien khong duoc nho hon hoac bang 0");
