@@ -624,91 +624,85 @@ public:
 };
 int User::nextId = 0;
 
-// Class App: orchestrates the users and manages the current logged-in user
+// Class App: quản lý danh sách người dùng và người dùng đang đăng nhập
 class App {
 private:
-    vector<User*> users;
-    User* currentUser;
+    vector<User*> users; // App là lớp sở hữu các đối tượng User
+    User* currentUser; // con trỏ đến người dùng hiện đang đăng nhập
 public:
     App() : currentUser(nullptr) {}
+
     ~App() {
-        // Clean up all users
+        // Xóa toàn bộ user
         for (User* u : users) {
             delete u;
         }
+        // Xóa danh sách con trỏ sau khi đã delete
+        users.clear();
     }
 
-    // Register a new user (returns the User pointer or nullptr if failed)
+    // Kiểm tra có người dùng nào đang đăng nhập không
+    bool isLoggedIn() const {
+        return currentUser != nullptr;
+    }
+
+    // Đăng ký tài khoản mới (trả về nullptr nếu đăng ký thất bại)
     User* registerUser(const string& fullName, const string& email, const string& password) {
-        // Ensure email is unique
+        // Kiểm tra email đã tồn tại hay chưa
         for (User* u : users) {
             if (u->getEmail() == email) {
-                cout << "Email \"" << email << "\" is already registered. Please use a different email." << endl;
+                cout << "Email \"" << email << "\" da duoc dang ky! Vui long nhap email khac." << endl;
                 return nullptr;
             }
         }
-        User* user = new User(fullName, email, password);
-        users.push_back(user);
-        cout << "Registration successful! You can now log in." << endl;
-        return user;
+        // Email chưa tồn tại nên tạo User mới
+        User* newUser = new User(fullName, email, password);
+        users.push_back(newUser);
+        cout << "Dang ky thanh cong! Ban co the dang nhap ngay bay gio." << endl;
+        return newUser;
     }
 
-    // Log in a user by email and password
+    // Đăng nhập User bằng email và mật khẩu
     bool login(const string& email, const string& password) {
+        // Nếu đã có người đăng nhập thì không cho đăng nhập tiếp
+        if (isLoggedIn()){
+            cout << "Hien tai da co nguoi dang nhap! Vui long dang xuat truoc.";
+            return false;
+        }
+
+        // Tìm User có email tương ứng và kiểm tra mật khẩu
         for (User* u : users) {
             if (u->getEmail() == email) {
                 if (u->checkPassword(password)) {
                     currentUser = u;
-                    cout << "Welcome, " << u->getFullName() << "!" << endl;
+                    cout << "Chao mung " << u->getFullName() << "! Ban da dang nhap thanh cong." << endl;
                     return true;
                 } else {
-                    cout << "Incorrect password. Please try again." << endl;
+                    cout << "Mat khau khong dung! Vui long thu lai." << endl;
                     return false;
                 }
             }
         }
-        cout << "No account found with email: " << email << endl;
+        cout << "Khong tim thay tai khoan voi email: " << email << endl;
         return false;
     }
 
-    // Log out the current user
+    // Đăng xuất User hiện tại
     void logout() {
-        if (currentUser) {
-            cout << "User \"" << currentUser->getFullName() << "\" has been logged out." << endl;
+        if (isLoggedIn()) {
+            cout << "Nguoi dung \"" << currentUser->getFullName() << "\" da dang xuat thanh cong." << endl;
         }
         currentUser = nullptr;
     }
 
+    // Lấy thông tin User đang đăng nhập
     User* getCurrentUser() const {
         return currentUser;
     }
 
-    // Export current user's transaction data to a CSV file
+    // Xuất dữ liệu ra file CSV
     void exportDataCSV(const string& filename) {
-        if (currentUser == nullptr) {
-            cout << "No user is logged in." << endl;
-            return;
-        }
-        ofstream file(filename);
-        if (!file) {
-            cout << "Unable to open file: " << filename << endl;
-            return;
-        }
-        // Write CSV header
-        file << "Account,Date,Title,Amount,Type,Category,Note\n";
-        // For each account of current user, output each transaction
-        for (Account* acc : currentUser->getAccounts()) {
-            for (Transaction* tx : acc->getTransactions()) {
-                file << acc->getName() << ","
-                     << tx->getDate() << ","
-                     << (tx->getType() == TransactionType::EXPENSE ? "-" : "") << tx->getAmount() << ","
-                     << transactionTypeToString(tx->getType()) << ","
-                     << tx->getCategory() << ","
-                     << tx->getNote() << "\n";
-            }
-        }
-        file.close();
-        cout << "Data exported to \"" << filename << "\" successfully." << endl;
+       cout<<"No data";
     }
 };
 
