@@ -123,19 +123,21 @@ int Transaction::nextId = 0;
 // class Account đại diện cho một tài khoản tài chính cụ thể (ví dụ: tiền mặt, ngân hàng, ví điện tử)
 class Account{
     private:
-        string id;
+        int id;
         string name;
         long balance;
-        vector<Transaction>* transactions; 
+        vector<Transaction*> transactions; 
     public:
-        Account(const string& id, const string& name, long initialBalance = 0) //số dư ban đầu = 0
+        Account(const int& id, const string& name, long initialBalance = 0) //số dư ban đầu = 0
         {
             this->id = id;
             this->name = name;
             this->balance = initialBalance;
-            transactions = new vector<Transaction>();
         }
-        ~Account() { delete transactions; }
+        ~Account() {
+            for (auto p : transactions) delete p;
+            transactions.clear();
+        }
         const string& getName() const { return name; }
         double getBalance() const { return balance; }
        Transaction deposit (const string& title, long amount, const string& date, const string& category, const string& note) 
@@ -159,7 +161,7 @@ class Account{
         }
 
         void addTransaction (const Transaction& tx) {
-            transactions->push_back(tx);
+            transactions.push_back(new Transaction(tx));
             // cập nhật số dư
             if(tx.getType() == TransactionType::INCOME ) {
                 this->balance += tx.getAmount();
@@ -168,8 +170,8 @@ class Account{
             }
         }
         bool editTransaction(const string& txId, const Transaction& updated) {
-            for (size_t i = 0; i < transactions->size(); ++i) {
-                Transaction* t = &transactions->at(i);
+            for (size_t i = 0; i < transactions.size(); ++i) {
+                Transaction* t = transactions.at(i);
                 if (to_string(t->id) == txId) {
                     // xóa bỏ loại giao dịch + trả lại số dư trước đó
                     if (t->getType() == TransactionType::INCOME) 
@@ -183,8 +185,8 @@ class Account{
                     t->type = updated.type;
                     t->category = updated.category;
                     t->note = updated.note;
-                    // t.id không thay đổi
-
+                    // id không thay đổi
+                    
                     // cập nhật số dư sau update
                     if (t->getType() == TransactionType::INCOME)
                         this->balance += t->getAmount();
@@ -197,18 +199,12 @@ class Account{
         }
 
         bool removeTransaction(const string& txId) {
-            if (transactions->empty()) return false; //nếu danh sách rỗng
-            for (size_t i = 0; i < transactions->size(); ++i) {
-                Transaction* t = &transactions->at(i);
+            if (transactions.empty()) return false; //nếu danh sách rỗng
+            for (size_t i = 0; i < transactions.size(); ++i) {
+                Transaction* t = transactions.at(i);
                 if (to_string(t->id) == txId) {
-                    //trả lại số dư trước đó
-                    if (t->getType() == TransactionType::INCOME) {
-                        balance -= t->getAmount();
-                    } else if (t->getType() == TransactionType::EXPENSE) {
-                        balance += t->getAmount();
-                    }
                     //xóa gd
-                    transactions->erase(transactions->begin() + i);
+                    transactions.erase(transactions.begin() + i);
                     return true;
                 }
             }
@@ -388,7 +384,7 @@ public:
     }
 
     // Tổng hợp dữ liệu cho bài báo cáo từ danh sách giao dịch Transaction
-    void build(const vector<Transaction>* transactions) {
+    void build(const vector<Transaction>& transactions) {
         this->totalIncome = 0;
         this->totalExpense = 0;
         this->netChange =0;
