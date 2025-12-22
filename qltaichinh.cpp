@@ -362,7 +362,10 @@ public:
         this->totalIncome = 0;
         this->totalExpense = 0;
         this->netChange =0;
-        
+
+        //Kiểm tra nếu dữ liệu nhập vào không hợp lệ thì kết thúc hàm
+        if (this->fromDate > this->toDate) return;
+            
         for (int i=0; i<transactions->size(); i++){
             const Transaction* tx = &transactions->at(i);
 
