@@ -131,8 +131,8 @@ bool User::transfer(int fromAccountId, int toAccountId, long amount, const strin
     }
     string today = getToday();
     // Ghi nhận giao dịch chuyển tiền ở cả hai phía
-    fromAcc->withdraw("chuyen tien den" + toAcc->getName(), amount, today, "chuyen khoan", note);
-    toAcc->deposit("chuyen tien tu" + fromAcc->getName(), amount, today, "chuyen khoan", note);
+    fromAcc->withdraw("chuyen tien den " + toAcc->getName(), amount, today, " 0chuyen khoan", note);
+    toAcc->deposit("chuyen tien tu " + fromAcc->getName(), amount, today, " chuyen khoan", note);
     cout << "da chuyen tien " << amount << " tu \"" << fromAcc->getName() << "\" den \"" << toAcc->getName() << "\"." << endl;
     return true;
 }
@@ -247,3 +247,78 @@ void User::listLoans() const
         }
     }
 }
+bool User::transferToOtherUser(int fromAccountId, User* receiver, int toAccountId, long amount, const string& note)
+{
+    if (receiver == nullptr)
+    {
+        cout << "Nguoi nhan khong hop le." << endl;
+        return false;
+    }
+
+    if (this == receiver)
+    {
+        cout << "Dung dung phuong thuc transfer, su dung chuyen tien noi bo." << endl;
+        return false;
+    }
+
+    if (amount <= 0)
+    {
+        cout << "So tien phai la so duong." << endl;
+        return false;
+    }
+
+    // Tìm tài khoản nguồn của User hiện tại
+    Account* fromAcc = nullptr;
+    for (Account* acc : accounts)
+    {
+        if (acc->getId() == fromAccountId)
+        {
+            fromAcc = acc;
+            break;
+        }
+    }
+    if (fromAcc == nullptr)
+    {
+        cout << "Khong tim thay tai khoan nguon cua ban." << endl;
+        return false;
+    }
+
+    if (amount > fromAcc->getBalance())
+    {
+        cout << "So du trong tai khoan nguon khong du." << endl;
+        return false;
+    }
+
+    // Tìm tài khoản đích của User nhận
+    Account* toAcc = nullptr;
+    for (Account* acc : receiver->getAccounts())
+    {
+        if (acc->getId() == toAccountId)
+        {
+            toAcc = acc;
+            break;
+        }
+    }
+    if (toAcc == nullptr)
+    {
+        cout << "Khong tim thay tai khoan nhan trong User nhan." << endl;
+        return false;
+    }
+
+    string today = getToday();
+
+    // Ghi nhận giao dịch rút tiền ở User gửi
+    fromAcc->withdraw("Chuyen tien den " + toAcc->getName() + " (User: " + receiver->getFullName() + ")", 
+                      amount, today, "0chuyen khoan ngoai", note);
+
+    // Ghi nhận giao dịch gửi tiền ở User nhận
+    toAcc->deposit("Chuyen tien tu " + fromAcc->getName() + " (User: " + fullName + ")", 
+                   amount, today, "chuyen khoan ngoai", note);
+
+    cout << "Da chuyen " << amount << " tu tai khoan \"" << fromAcc->getName() << "\" cua User \"" 
+         << fullName << "\" den tai khoan \"" << toAcc->getName() << "\" cua User \"" << receiver->getFullName() << "\"." << endl;
+
+    return true;
+}
+
+
