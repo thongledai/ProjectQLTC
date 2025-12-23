@@ -422,3 +422,4 @@ void Menu::run()
         }
     }
 }
+//g++ Main.cpp App.cpp Menu.cpp Utils.cpp Account.cpp Loan.cpp Report.cpp Transaction.cpp User.cpp -o Main
