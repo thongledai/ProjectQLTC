@@ -176,9 +176,9 @@ void Menu::run()
                 cin >> amt;
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-                cout << "Nhap tieu đe giao dich: ";
+                cout << "Nhap tieu de giao dich: ";
                 getline(cin, title);
-                cout << "Nhap danh mục (khong bat buoc): ";
+                cout << "Nhap danh muc (khong bat buoc): ";
                 getline(cin, category);
                 cout << "Nhap ghi chu (khong bat buoc): ";
                 getline(cin, note);
@@ -318,9 +318,9 @@ void Menu::run()
                 cin >> interest;
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-                cout << "Nhap ngay bat đau (YYYY-MM-DD): ";
+                cout << "Nhap ngay bat dau (YYYY-MM-DD): ";
                 getline(cin, startDate);
-                cout << "Nhap ngay đen han (YYYY-MM-DD): ";
+                cout << "Nhap ngay den han (YYYY-MM-DD): ";
                 getline(cin, dueDate);
                 cout << "Nhap ghi chu (khong bat buoc): ";
                 getline(cin, note);
