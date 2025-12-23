@@ -22,7 +22,6 @@ void Menu::showMainMenu()
     cout << "1. Dang ky\n";
     cout << "2. Dang nhap\n";
     cout << "3. Thoat\n";
-    cout << "Nhap lua chon: ";
 }
 
 void Menu::showUserMenu(const string &userName)
@@ -40,20 +39,23 @@ void Menu::showUserMenu(const string &userName)
     cout << "10. Tao bao cao (Thu / Chi)\n";
     cout << "11. Xuat du lieu ra file CSV\n";
     cout << "12. Dang xuat\n";
-    cout << "Chon chuc nang: ";
 }
 
 void Menu::run()
 {
     bool running = true;
-
+    bool showMain = true;
+    bool showUser = true;
     while (running)
     {
         if (app.getCurrentUser() == nullptr)
         {
-            // ===== CHƯA ĐĂNG NHẬP =====
-            showMainMenu();
-
+            //CHƯA ĐĂNG NHẬP
+            if (showMain) {
+                showMainMenu();
+                showMain = false;
+            }
+            cout << "\nNhap lua chon: ";
             int choice;
             if (!(cin >> choice))
             {
@@ -99,10 +101,13 @@ void Menu::run()
         }
         else
         {
-            // ===== ĐÃ ĐĂNG NHẬP =====
+            //ĐÃ ĐĂNG NHẬP
             string userName = app.getCurrentUser()->getFullName();
-            showUserMenu(userName);
-
+            if (showUser) {
+                showUserMenu(userName);
+                showUser = false;
+            } 
+            cout << "\nNhap lua chon: ";
             int choice;
             if (!(cin >> choice))
             {
@@ -382,18 +387,13 @@ void Menu::run()
 
             case 11:
             {
-                string filename;
-                cout << "Nhap ten file xuat du lieu (vi dụ: data.csv): ";
-                getline(cin, filename);
-                if (filename.empty())
-                    filename = "export.csv";
-
-                app.exportDataCSV(filename);
-                break;
+                //chua code
             }
 
             case 12:
                 app.logout();
+                showMain = true;
+                showUser = true;
                 break;
 
             default:
