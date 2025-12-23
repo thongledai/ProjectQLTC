@@ -32,7 +32,21 @@ private:
 public:
     User(const string& fullName, const string& email, const string& password);
     // Giải phóng toàn bộ tài nguyên động mà User sở hữu
+<<<<<<< HEAD
     ~User();
+=======
+    ~User() {
+        for (Account* acc : accounts) delete acc;
+        for (Loan* loan : loans)     delete loan;
+    }
+    // ===== Getter / Setter =====
+    int getId() const { return id; }
+    string getFullName() const { return fullName; }
+    string getEmail() const { return email; }
+    string getPassword() const { return password; }
+    const vector<Account*>& getAccounts() const { return accounts; }
+    const vector<Loan*>& getLoans() const { return loans; }
+>>>>>>> 1c76f3357fd85264e2aa87cf6846ec64c5b0e613
 
     // ===== Getter / Setter =====
     int getId() const;
