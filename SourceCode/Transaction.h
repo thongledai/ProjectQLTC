@@ -18,14 +18,14 @@ private:
     static int nextId;
     
     string title;
-    double amount;
+    long amount;
     string date;
     TransactionType type;
     string category;
     string note;
 public:
 int id;
-    Transaction(const string& title, double amount, const string& date, TransactionType type,
+    Transaction(const string& title, long amount, const string& date, TransactionType type,
                 const string& category = "", const string& note = "") {
         this->id = ++nextId;
         this->title = title;
@@ -37,7 +37,7 @@ int id;
     }
     int getId() const        { return id; }
     string getTitle() const  { return title; }
-    double getAmount() const { return amount; }
+    long getAmount() const { return amount; }
     string getDate() const   { return date; }
     TransactionType getType() const { return type; }
     string getCategory() const { return category; }
