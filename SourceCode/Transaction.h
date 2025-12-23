@@ -41,6 +41,7 @@ public:
     void setNote(const string& newNote);
     void setType(const TransactionType& t);
 
+    void print()const ;
     bool isIncome() const;
     bool isExpense() const;
 };

@@ -1,5 +1,5 @@
 #include "Transaction.h"
-
+#include <iostream>
 using namespace std;
 
 int Transaction::nextId = 0;
@@ -23,6 +23,7 @@ Transaction::Transaction(const string& title, long amount, const string& date, T
     this->type = type;
     this->category = category;
     this->note = note;
+                            
 }
 
 int Transaction::getId() const        { return id; }
@@ -39,6 +40,15 @@ void Transaction::setDate(const string& newDate)          { date = newDate; }
 void Transaction::setCategory(const string& newCategory)  { category = newCategory; }
 void Transaction::setNote(const string& newNote)          { note = newNote; }
 void Transaction::setType(const TransactionType& t)       { type = t; }
+void Transaction::print() const {
+    cout<<id<<endl
+    <<title<<endl
+    <<amount<<endl
+    <<date<<endl<<
+    transactionTypeToString(type)
+    <<category<<endl
+    <<note<<endl;
+}
 
 bool Transaction::isIncome() const  { return type == TransactionType::INCOME; }
 bool Transaction::isExpense() const { return type == TransactionType::EXPENSE; }

@@ -35,10 +35,9 @@ void Menu::showUserMenu(const string& userName) {
     cout << "7. Thêm khoản vay (Vay / Cho vay)\n";
     cout << "8. Danh sách các khoản vay\n";
     cout << "9. Ghi nhận thanh toán khoản vay\n";
-    cout << "10. Đánh dấu khoản vay đã tất toán\n";
-    cout << "11. Tạo báo cáo (Thu / Chi)\n";
-    cout << "12. Xuất dữ liệu ra file CSV\n";
-    cout << "13. Đăng xuất\n";
+    cout << "10. Tạo báo cáo (Thu / Chi)\n";
+    cout << "11. Xuất dữ liệu ra file CSV\n";
+    cout << "12. Đăng xuất\n";
     cout << "Chọn chức năng: ";
 }
 
@@ -115,6 +114,7 @@ void Menu::run() {
                     cin >> initBal;
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
                     int id;
+                    cout<< "Nhập ID: ";
                     cin>>id;
 
                     user->addAccount(id,accName, initBal);
@@ -229,7 +229,10 @@ void Menu::run() {
                     bool found = false;
                     for (Account* acc : user->getAccounts()) {
                         if (acc->getId() == accId) {
-                            acc->getTransactions();
+                            auto a = acc->listTransactions();
+                            for (auto x: a) {
+                                x->print();
+                            }
                             found = true;
                             break;
                         }
@@ -313,11 +316,7 @@ void Menu::run() {
                     break;
                 }
 
-                case 10:
-                    cout << "Chức năng chưa được cài đặt." << endl;
-                    break;
-
-                case 11: {
+                case 10: {
                     string fromDate, toDate;
                     cout << "Nhập ngày bắt đầu báo cáo (YYYY-MM-DD, bỏ trống nếu không giới hạn): ";
                     getline(cin, fromDate);
@@ -329,7 +328,7 @@ void Menu::run() {
                     break;
                 }
 
-                case 12: {
+                case 11: {
                     string filename;
                     cout << "Nhập tên file xuất dữ liệu (ví dụ: data.csv): ";
                     getline(cin, filename);
@@ -339,7 +338,7 @@ void Menu::run() {
                     break;
                 }
 
-                case 13:
+                case 12:
                     app.logout();
                     break;
 

@@ -29,7 +29,7 @@ const string& Account::getName() const { return name; }
 void Account::setName(const string& newName) { name = newName; }
 long Account::getBalance() const { return balance; }
 void Account::setBalance(long newBalance) { balance = newBalance; }
-const vector<Transaction*>& Account::getTransactions() const { return transactions; }
+const vector<Transaction*> Account::listTransactions() const { return this->transactions; }
 
 // Trả về danh sách giao dịch trong khoảng [fromDate, toDate].
 // Nếu fromDate hoặc toDate rỗng thì không áp giới hạn tương ứng.
@@ -49,7 +49,9 @@ Transaction Account::deposit (const string& title, long amount, const string& da
     if (amount <= 0){
         throw invalid_argument("So tien khong duoc nho hon hoac bang 0");
     }
-    Transaction trans(title, amount, date, TransactionType::INCOME, category, note);         
+    Transaction trans(title, amount, date, TransactionType::INCOME, category, note);    
+    this->addTransaction(trans);
+    this->balance += trans.getAmount();    
     return trans;
 }
 
@@ -62,17 +64,14 @@ Transaction Account::withdraw (const string& title ,long amount, const string& d
         throw runtime_error("So du khong du");
 
     Transaction trans(title, amount, date, TransactionType::EXPENSE, category, note);
+    this->addTransaction(trans);
+    this->balance -= trans.getAmount();
+
     return trans;
 }
 
 void Account::addTransaction (const Transaction& tx) {
     transactions.push_back(new Transaction(tx));
-    // cập nhật số dư
-    if(tx.getType() == TransactionType::INCOME ) {
-        this->balance += tx.getAmount();
-    } else if(tx.getType() == TransactionType::EXPENSE ) {
-        this->balance -= tx.getAmount();
-    }
 }
 
 bool Account::editTransaction(const int& txId, const Transaction& updated) {

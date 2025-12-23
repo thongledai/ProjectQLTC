@@ -47,7 +47,7 @@ bool User::checkPassword(const string& pw) const {
 // ===== Account =====
 
 // Thêm tài khoản mới cho User
-Account* User::addAccount(const int& id,const string& name, long initialBalance) {
+Account* User::addAccount(const int& id,const string& name, double initialBalance) {
     Account* account = new Account(id, name, initialBalance);
     accounts.push_back(account);
     return account;
