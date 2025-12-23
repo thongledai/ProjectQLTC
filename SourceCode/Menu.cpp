@@ -46,11 +46,21 @@ void Menu::run()
     bool running = true;
     bool showMain = true;
     bool showUser = true;
+    
     while (running)
     {
         if (app.getCurrentUser() == nullptr)
         {
             //CHƯA ĐĂNG NHẬP
+            if (!showMain){
+                int a;
+                cout << "Nhap 0 de quay lai trang chu: ";
+                cin >> a;
+                if (a == 0){
+                    showMain = true;
+                }
+            }
+            
             if (showMain) {
                 showMainMenu();
                 showMain = false;
@@ -103,6 +113,16 @@ void Menu::run()
         {
             //ĐÃ ĐĂNG NHẬP
             string userName = app.getCurrentUser()->getFullName();
+            
+            if (!showUser){
+                int a;
+                cout << "Nhap 0 de quay lai trang chu: ";
+                cin >> a;
+                if (a == 0){
+                    showUser = true;
+                }
+            }
+
             if (showUser) {
                 showUserMenu(userName);
                 showUser = false;
