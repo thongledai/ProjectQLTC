@@ -17,8 +17,7 @@ string getToday();
 // Class User: đại diện cho một người người dùng của hệ thống(có tài khoản và khoản)
 class User {
 private:
-   static int nextId;                 // Biến tĩnh dùng để sinh ID tự tăng
-
+    static int nextId;                 // Biến tĩnh dùng để sinh ID tự tăng
     int id;
     string fullName;
     string password;
@@ -53,7 +52,7 @@ public:
     // ===== Account =====
 
     // Thêm tài khoản mới cho User
-    Account* addAccount(const int& id,const string& name, double initialBalance = 0.0);
+    Account* addAccount(const int& id,const string& name, long initialBalance = 0);
 
     // Xóa tài khoản theo ID
    bool removeAccount(int accountId);
@@ -62,15 +61,18 @@ public:
     bool renameAccount(int accountId, const string& newName);
 
     // Chuyển tiền nội bộ giữa các tài khoản của cùng User
-    bool transfer(int fromAccountId, int toAccountId, double amount, const string& note = "");
+    bool transfer(int fromAccountId, int toAccountId, long amount, const string& note = "");
 
      // ===== Loan =====
 
-    Loan* addLoan(LoanType type, const string& partnerName, double principal, double interestRate,
+    Loan* addLoan(LoanType type, const string& partnerName, long principal, long interestRate,
                   const string& startDate, const string& dueDate, const string& note = "");
 
     // Cập nhật thông tin khoản vay (lãi suất hoặc ngày đến hạn)
-    bool updateLoan(int loanId, double newInterestRate = -1, const string& newDueDate = "");
+    bool updateLoan(int loanId, long newInterestRate = -1, const string& newDueDate = "");
+
+    // xóa khoản vay thông qua ID
+    bool removeLoan(int loanId);
 
     // ===== Báo cáo =====
     // Tổng hợp toàn bộ giao dịch từ các Account để sinh Report
