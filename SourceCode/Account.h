@@ -81,7 +81,7 @@ class Account{
         bool editTransaction(const int& txId, const Transaction& updated) {
             for (size_t i = 0; i < transactions.size(); ++i) {
                 Transaction* t = transactions.at(i);
-                if (t->id == txId) {
+                if (t->getId() == txId) {
                     // xóa bỏ loại giao dịch + trả lại số dư trước đó
                     if (t->getType() == TransactionType::INCOME) 
                         this->balance -= t->getAmount();
@@ -111,7 +111,7 @@ class Account{
             if (transactions.empty()) return false; //nếu danh sách rỗng
             for (size_t i = 0; i < transactions.size(); ++i) {
                 Transaction* t = transactions.at(i);
-                if (t->id == txId) {
+                if (t->getId() == txId) {
                     //xóa gd
                     transactions.erase(transactions.begin() + i);
                     return true;
