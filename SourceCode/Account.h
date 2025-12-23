@@ -88,12 +88,12 @@ class Account{
                     else if (t->getType() == TransactionType::EXPENSE) 
                         this->balance += t->getAmount();
                     
-                    t->title = updated.title;
-                    t->amount = updated.amount;
-                    t->date = updated.date;
-                    t->type = updated.type;
-                    t->category = updated.category;
-                    t->note = updated.note;
+                    t->setTitle(updated.getTitle());
+                    t->setAmount(updated.getAmount());
+                    t->setDate(updated.getDate());
+                    t->setType(updated.getType());
+                    t->setCategory(updated.getCategory());
+                    t->setNote(updated.getNote());
                     // id không thay đổi
                     
                     // cập nhật số dư sau update
@@ -129,4 +129,6 @@ class Account{
             report.display();
         }
 };
+
+
 int Account::nextId = 0;
