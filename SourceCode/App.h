@@ -17,7 +17,7 @@ public:
 
     // Kiểm tra có người dùng nào đang đăng nhập không
     bool isLoggedIn() const;
-
+    
     // Đăng ký tài khoản mới (trả về nullptr nếu đăng ký thất bại)
     User* registerUser(const std::string& fullName, const std::string& email, const std::string& password);
 
@@ -32,6 +32,9 @@ public:
 
     // Xuất dữ liệu ra file CSV
     void exportDataCSV(const std::string& filename);
+
+    const std::vector<User*>& getAllUsers() const;
+
 };
 
 #endif
