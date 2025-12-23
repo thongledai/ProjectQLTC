@@ -18,15 +18,15 @@ Menu::Menu(App &appRef) : app(appRef) {}
 
 void Menu::showMainMenu()
 {
-    cout << "\n==== UNG DUNG QUAN LY TAI CHINH CA NHAN ====\n";
+    cout << "\n==== Menu Dang Nhap ====\n";
     cout << "1. Dang ky\n";
     cout << "2. Dang nhap\n";
-    cout << "3. Thoat\n";
+    cout << "3. Thoat ung dung\n";
 }
 
 void Menu::showUserMenu(const string &userName)
 {
-    cout << "\n==== MENU CHINH (Nguoi dung: " << userName << ") ====\n";
+    cout << "\n==== Menu Nguoi Dung - "<<userName<<" ====\n";
     cout << "1. Them tai khoan\n";
     cout << "2. Danh sach tai khoan\n";
     cout << "3. Nap tien vao tai khoan\n";
