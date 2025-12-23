@@ -181,7 +181,7 @@ void User::listLoans() const {
     if (loans.empty()) {
         cout << "Khong co khoan vay nao" << endl;
     } else {
-        cout << "Danh sach cac khoan vay - \"" << fullName << "\":" << endl;
+        cout << "  Danh sach cac khoan vay - \"" << fullName << "\":" << endl;
         for (Loan* loan : loans) {
          // Kiểm tra quá hạn phục vụ hiển thị
             string statusStr = loanStatusToString(loan->getStatus());
