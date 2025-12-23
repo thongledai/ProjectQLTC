@@ -2,7 +2,7 @@
 
 using namespace std;
 
-// Enum for transaction types
+// Enum cho các loại giao dịch
 enum class TransactionType { INCOME, EXPENSE };
 string transactionTypeToString(TransactionType t) {
     switch(t) {
@@ -12,7 +12,7 @@ string transactionTypeToString(TransactionType t) {
     return "UNKNOWN";
 }
 
-// Class Transaction: represents a financial transaction (income, expense, or transfer)
+// Class Transaction: Thể hiện một giao dịch tài chính: income (thu), expense (chi)
 class Transaction {
 private:
     static int nextId;
