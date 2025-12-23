@@ -33,7 +33,7 @@ void Menu::showUserMenu(const string &userName)
     cout << "4. Rut tien tu tai khoan\n";
     cout << "5. Chuyen tien giua cac tai khoan\n";
     cout << "6. Xem danh sach giao dich (theo tai khoan)\n";
-    cout << "7. Them khoan vay (Vay / Cho vay)\n";
+    cout << "7. Them khoan vay\n";
     cout << "8. Danh sach cac khoan vay\n";
     cout << "9. Ghi nhan thanh toan khoan vay\n";
     cout << "10. Tao bao cao (Thu / Chi)\n";
@@ -262,7 +262,7 @@ void Menu::run()
                 cin >> amt;
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-                cout << "Nhap ghi chu chuyen tien ( khong bat buoc ): ";
+                cout << "Nhap ghi chu chuyen tien (khong bat buoc): ";
                 getline(cin, note);
 
                 user->transfer(fromId, toId, amt, note);
@@ -304,7 +304,7 @@ void Menu::run()
                 double principal, interest;
                 string startDate, dueDate, note;
 
-                cout << "Chon loai khoan vay (1 = Vay, 2 = Cho vay): ";
+                cout << "Chon loai khoan vay (1.Vay, 2.Cho vay): ";
                 cin >> typeChoice;
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
