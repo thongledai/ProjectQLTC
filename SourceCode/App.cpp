@@ -5,9 +5,11 @@ using namespace std;
 
 App::App() : currentUser(nullptr) {}
 
-App::~App() {
+App::~App()
+{
     // Xóa toàn bộ user
-    for (User* u : users) {
+    for (User *u : users)
+    {
         delete u;
     }
     // Xóa danh sách con trỏ sau khi đã delete
@@ -15,42 +17,53 @@ App::~App() {
 }
 
 // Kiểm tra có người dùng nào đang đăng nhập không
-bool App::isLoggedIn() const {
+bool App::isLoggedIn() const
+{
     return currentUser != nullptr;
 }
 
 // Đăng ký tài khoản mới (trả về nullptr nếu đăng ký thất bại)
-User* App::registerUser(const string& fullName, const string& email, const string& password) {
+User *App::registerUser(const string &fullName, const string &email, const string &password)
+{
     // Kiểm tra email đã tồn tại hay chưa
-    for (User* u : users) {
-        if (u->getEmail() == email) {
+    for (User *u : users)
+    {
+        if (u->getEmail() == email)
+        {
             cout << "Email \"" << email << "\" da duoc dang ky! Vui long nhap email khac." << endl;
             return nullptr;
         }
     }
     // Email chưa tồn tại nên tạo User mới
-    User* newUser = new User(fullName, email, password);
+    User *newUser = new User(fullName, email, password);
     users.push_back(newUser);
     cout << "Dang ky thanh cong! Ban co the dang nhap ngay bay gio." << endl;
     return newUser;
 }
 
 // Đăng nhập User bằng email và mật khẩu
-bool App::login(const string& email, const string& password) {
+bool App::login(const string &email, const string &password)
+{
     // Nếu đã có người đăng nhập thì không cho đăng nhập tiếp
-    if (isLoggedIn()){
+    if (isLoggedIn())
+    {
         cout << "Hien tai da co nguoi dang nhap! Vui long dang xuat truoc.";
         return false;
     }
 
     // Tìm User có email tương ứng và kiểm tra mật khẩu
-    for (User* u : users) {
-        if (u->getEmail() == email) {
-            if (u->checkPassword(password)) {
+    for (User *u : users)
+    {
+        if (u->getEmail() == email)
+        {
+            if (u->checkPassword(password))
+            {
                 currentUser = u;
                 cout << "Chao mung " << u->getFullName() << "! Ban da dang nhap thanh cong." << endl;
                 return true;
-            } else {
+            }
+            else
+            {
                 cout << "Mat khau khong dung! Vui long thu lai." << endl;
                 return false;
             }
@@ -61,17 +74,25 @@ bool App::login(const string& email, const string& password) {
 }
 
 // Đăng xuất User hiện tại
-void App::logout() {
-    if (isLoggedIn()) {
+void App::logout()
+{
+    if (isLoggedIn())
+    {
         cout << "Nguoi dung \"" << currentUser->getFullName() << "\" da dang xuat thanh cong." << endl;
     }
     currentUser = nullptr;
 }
 
 // Lấy thông tin User đang đăng nhập
-User* App::getCurrentUser() const { return currentUser; }
+User *App::getCurrentUser() const { return currentUser; }
 
 // Xuất dữ liệu ra file CSV
-void App::exportDataCSV(const string& filename) {
+void App::exportDataCSV(const string &filename)
+{
     cout << "No data";
 }
+const std::vector<User*>& App::getAllUsers() const
+{
+    return users;
+}
+  
