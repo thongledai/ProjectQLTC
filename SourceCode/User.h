@@ -42,6 +42,7 @@ public:
     int getId() const { return id; }
     string getFullName() const { return fullName; }
     string getEmail() const { return email; }
+    string getPassword() const { return password; }
     const vector<Account*>& getAccounts() const { return accounts; }
     const vector<Loan*>& getLoans() const { return loans; }
 
