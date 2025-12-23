@@ -112,8 +112,8 @@ public:
         }
         string today = getToday();
         // Ghi nhận giao dịch chuyển tiền ở cả hai phía
-        fromAcc->withdraw(amount, "chuyen tien den" + toAcc->getName(), "chuyen khoan", note, today, TransactionType::TRANSFER);
-        toAcc->deposit(amount, "chuyen tien tu" + fromAcc->getName(), "chuyen khoan", note, today, TransactionType::TRANSFER);
+        fromAcc->withdraw("chuyen tien den" + toAcc->getName(), amount, today, "chuyen khoan", note);
+        toAcc->deposit("chuyen tien tu" + fromAcc->getName(), amount, today, "chuyen khoan", note);
         cout << "da chuyen tien " << amount << " tu \"" << fromAcc->getName() << "\" den \"" << toAcc->getName() << "\"." << endl;
         return true;
     }
