@@ -129,18 +129,6 @@ bool User::updateLoan(int loanId, double newInterestRate, const string& newDueDa
     return false;
 }
 
-// xóa khoản vay thông qua ID
-bool User::removeLoan(int loanId) {
-    for (auto it = loans.begin(); it != loans.end(); ++it) {
-        if ((*it)->getId() == loanId) {
-            delete *it;
-            loans.erase(it);
-            return true;
-        }
-    }
-    return false;
-}
-
 // ===== Báo cáo =====
 // Tổng hợp toàn bộ giao dịch từ các Account để sinh Report
 Report User::generateReport(const string& fromDate, const string& toDate) {
