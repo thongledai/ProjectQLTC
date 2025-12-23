@@ -47,6 +47,7 @@ int id;
     void setDate(const string& newDate)       { date = newDate; }
     void setCategory(const string& newCategory){ category = newCategory; }
     void setNote(const string& newNote)       { note = newNote; }
+    void setType(const TransactionType& t) { type = t; }
     bool isIncome() const  { return type == TransactionType::INCOME; }
     bool isExpense() const { return type == TransactionType::EXPENSE; }
 };
