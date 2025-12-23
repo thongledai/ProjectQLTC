@@ -1,3 +1,4 @@
+
 #include "Menu.h"
 
 #include <iostream>
@@ -19,6 +20,7 @@ Menu::Menu(App &appRef) : app(appRef) {}
 void Menu::showMainMenu()
 {
     cout << "\n==== Menu Dang Nhap ====\n";
+    cout << "0. Quay lai trang chu\n";
     cout << "1. Dang ky\n";
     cout << "2. Dang nhap\n";
     cout << "3. Thoat ung dung\n";
@@ -27,6 +29,7 @@ void Menu::showMainMenu()
 void Menu::showUserMenu(const string &userName)
 {
     cout << "\n==== Menu Nguoi Dung - " << userName << " ====\n";
+    cout << "0. Quay lai trang chu\n";
     cout << "1. Them tai khoan\n";
     cout << "2. Danh sach tai khoan\n";
     cout << "3. Nap tien vao tai khoan\n";
@@ -52,21 +55,6 @@ void Menu::run()
         if (app.getCurrentUser() == nullptr)
         {
             // CHƯA ĐĂNG NHẬP
-            if (!showMain)
-            {
-                int a;
-                cout << "Nhap 0 de quay lai trang chu: ";
-                cin >> a;
-                if (a == 0)
-                {
-                    showMain = true;
-                }
-                else
-                {
-                    cout << endl;
-                }
-            }
-
             if (showMain)
             {
                 showMainMenu();
@@ -84,6 +72,11 @@ void Menu::run()
 
             switch (choice)
             {
+            case 0:
+            {
+                showMainMenu();
+                break;
+            }
             case 1:
             {
                 string name, email, pass;
@@ -121,19 +114,6 @@ void Menu::run()
             // ĐÃ ĐĂNG NHẬP
             string userName = app.getCurrentUser()->getFullName();
 
-            if (!showUser)
-            {
-                int a;
-                cout << "Nhap 0 de quay lai trang chu:";
-                cin >> a;
-                if (a == 0)
-                {
-                    showUser = true;
-                }
-                else
-                    cout << endl;
-            }
-
             if (showUser)
             {
                 showUserMenu(userName);
@@ -153,6 +133,11 @@ void Menu::run()
 
             switch (choice)
             {
+            case 0:
+            {
+                showUserMenu(userName);
+                break;
+            }
             case 1:
             {
 
