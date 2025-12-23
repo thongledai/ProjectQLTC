@@ -26,16 +26,16 @@ void Menu::showMainMenu()
 
 void Menu::showUserMenu(const string &userName)
 {
-    cout << "\n==== Menu Nguoi Dung - "<<userName<<" ====\n";
+    cout << "\n==== Menu Nguoi Dung - " << userName << " ====\n";
     cout << "1. Them tai khoan\n";
     cout << "2. Danh sach tai khoan\n";
     cout << "3. Nap tien vao tai khoan\n";
     cout << "4. Rut tien tu tai khoan\n";
     cout << "5. Chuyen tien giua cac tai khoan\n";
     cout << "6. Xem danh sach giao dich (theo tai khoan)\n";
-    cout << "7. Them khoan vay\n";
+    cout << "7. Them khoan vay (Vay / Cho vay)\n";
     cout << "8. Danh sach cac khoan vay\n";
-    cout << "9. Thanh toan khoan vay\n";
+    cout << "9. Ghi nhan thanh toan khoan vay\n";
     cout << "10. Tao bao cao (Thu / Chi)\n";
     cout << "11. Xuat du lieu ra file CSV\n";
     cout << "12. Dang xuat\n";
@@ -46,22 +46,29 @@ void Menu::run()
     bool running = true;
     bool showMain = true;
     bool showUser = true;
-    
+
     while (running)
     {
         if (app.getCurrentUser() == nullptr)
         {
-            //CHƯA ĐĂNG NHẬP
-            if (!showMain){
+            // CHƯA ĐĂNG NHẬP
+            if (!showMain)
+            {
                 int a;
                 cout << "Nhap 0 de quay lai trang chu: ";
                 cin >> a;
-                if (a == 0){
+                if (a == 0)
+                {
                     showMain = true;
                 }
+                else
+                {
+                    cout << endl;
+                }
             }
-            
-            if (showMain) {
+
+            if (showMain)
+            {
                 showMainMenu();
                 showMain = false;
             }
@@ -111,22 +118,27 @@ void Menu::run()
         }
         else
         {
-            //ĐÃ ĐĂNG NHẬP
+            // ĐÃ ĐĂNG NHẬP
             string userName = app.getCurrentUser()->getFullName();
-            
-            if (!showUser){
+
+            if (!showUser)
+            {
                 int a;
-                cout << "Nhap 0 de quay lai trang chu: ";
+                cout << "Nhap 0 de quay lai trang chu:";
                 cin >> a;
-                if (a == 0){
+                if (a == 0)
+                {
                     showUser = true;
                 }
+                else
+                    cout << endl;
             }
 
-            if (showUser) {
+            if (showUser)
+            {
                 showUserMenu(userName);
                 showUser = false;
-            } 
+            }
             cout << "\nNhap lua chon: ";
             int choice;
             if (!(cin >> choice))
@@ -155,8 +167,11 @@ void Menu::run()
                 cout << "Nhap ID: ";
                 cin >> id;
 
-                user->addAccount(id, accName, initBal);
-                cout << "Da them tai khoan \"" << accName << "\" thanh cong." << endl;
+                Account *newAcc = user->addAccount(id, accName, initBal);
+                if (newAcc != nullptr)
+                {
+                    cout << "Da them tai khoan \"" << accName << "\" thanh cong." << endl;
+                }
                 break;
             }
 
@@ -262,7 +277,7 @@ void Menu::run()
                 cin >> amt;
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-                cout << "Nhap ghi chu chuyen tien (khong bat buoc): ";
+                cout << "Nhap ghi chu chuyen tien ( khong bat buoc ): ";
                 getline(cin, note);
 
                 user->transfer(fromId, toId, amt, note);
@@ -304,7 +319,7 @@ void Menu::run()
                 double principal, interest;
                 string startDate, dueDate, note;
 
-                cout << "Chon loai khoan vay (1.Vay, 2.Cho vay): ";
+                cout << "Chon loai khoan vay (1 = Vay, 2 = Cho vay): ";
                 cin >> typeChoice;
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
@@ -407,7 +422,7 @@ void Menu::run()
 
             case 11:
             {
-                //chua code
+                // chua code
             }
 
             case 12:
@@ -422,4 +437,3 @@ void Menu::run()
         }
     }
 }
-//g++ Main.cpp App.cpp Menu.cpp Utils.cpp Account.cpp Loan.cpp Report.cpp Transaction.cpp User.cpp -o Main
