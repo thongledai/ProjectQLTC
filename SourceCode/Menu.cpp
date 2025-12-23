@@ -123,7 +123,7 @@ void Menu::run()
                 long initBal;
                 cout << "Nhap ten tai khoan moi: ";
                 getline(cin, accName);
-                cout << "Nhap so du ban đau (0 neu khong co): ";
+                cout << "Nhap so du ban dau (0 neu khong co): ";
                 cin >> initBal;
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 int id;
