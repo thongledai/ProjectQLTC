@@ -7,7 +7,7 @@
 #include "Loan.h"
 #include "Account.h"
 #include "User.h"
-
+#include "App.h"
 using namespace std;
 
 int User::nextId = 0;
@@ -137,116 +137,7 @@ bool User::transfer(int fromAccountId, int toAccountId, long amount, const strin
     return true;
 }
 
-// ===== Loan =====
-
-Loan *User::addLoan(LoanType type, const string &partnerName, long principal, long interestRate,
-                    const string &startDate, const string &dueDate, const string &note)
-{
-    Loan *loan = new Loan(type, partnerName, principal, interestRate, startDate, dueDate, note);
-    loans.push_back(loan);
-    return loan;
-}
-
-// Cập nhật thông tin khoản vay (lãi suất hoặc ngày đến hạn)
-bool User::updateLoan(int loanId, long newInterestRate, const string &newDueDate)
-{
-    for (Loan *loan : loans)
-    {
-        if (loan->getId() == loanId)
-        {
-            if (newInterestRate >= 0)
-                loan->setInterestRate(newInterestRate);
-            if (!newDueDate.empty())
-                loan->setDueDate(newDueDate);
-            return true;
-        }
-    }
-    return false;
-}
-
-// xóa khoản vay thông qua ID
-bool User::removeLoan(int loanId)
-{
-    for (auto it = loans.begin(); it != loans.end(); ++it)
-    {
-        if ((*it)->getId() == loanId)
-        {
-            delete *it;
-            loans.erase(it);
-            return true;
-        }
-    }
-    return false;
-}
-
-// ===== Báo cáo =====
-// Tổng hợp toàn bộ giao dịch từ các Account để sinh Report
-Report User::generateReport(const string &fromDate, const string &toDate)
-{
-    vector<Transaction *> allTx;
-    for (Account *acc : accounts)
-    {
-        vector<Transaction *> rangeTx = acc->getTransactions(fromDate, toDate);
-        allTx.insert(allTx.end(), rangeTx.begin(), rangeTx.end());
-    }
-    Report report(fromDate, toDate);
-    report.build(allTx);
-    return report;
-}
-
-// Tổng số dư của toàn bộ tài khoản
-long User::getTotalBalance() const
-{
-    long total = 0;
-    for (Account *acc : accounts)
-    {
-        total += acc->getBalance();
-    }
-    return total;
-}
-
-// danh sách Account
-void User::listAccounts() const
-{
-    if (accounts.empty())
-    {
-        cout << "danh sach rong" << endl;
-    }
-    else
-    {
-        cout << "tai khoan cho nguoi dung \"" << fullName << "\":" << endl;
-        for (Account *acc : accounts)
-        {
-            cout << "  [AccountID " << acc->getId() << "] "
-                 << acc->getName() << " So du: " << acc->getBalance() << endl;
-        }
-    }
-}
-
-// Liệt kê tất cả các khoản vay (kèm thông tin tóm tắt)
-void User::listLoans() const
-{
-    if (loans.empty())
-    {
-        cout << "khong co khoan vay nao duoc ghi nhan" << endl;
-    }
-    else
-    {
-        cout << " khoan vay danh cho nguoi dung \"" << fullName << "\":" << endl;
-        for (Loan *loan : loans)
-        {
-            // Kiểm tra quá hạn phục vụ hiển thị
-            string statusStr = loanStatusToString(loan->getStatus());
-            cout << "  [LoanID " << loan->getId() << "] "
-                 << (loan->getType() == LoanType::BORROW ? "muon " : "cho muon")
-                 << loan->getPartnerName()
-                 << " | Tien goc: " << loan->getPrincipal()
-                 << " | Tra : " << loan->getPaidTotal()
-                 << " | con lai : " << loan->getRemaining()
-                 << " | tinh trang khoan vay o thoi diem hien tai: " << statusStr << endl;
-        }
-    }
-}
+//Chuyển tiền giữa các User
 bool User::transferToOtherUser(int fromAccountId, User* receiver, int toAccountId, long amount, const string& note)
 {
     if (receiver == nullptr)
@@ -320,5 +211,134 @@ bool User::transferToOtherUser(int fromAccountId, User* receiver, int toAccountI
 
     return true;
 }
+
+// ===== Loan =====
+
+Loan *User::addLoan(LoanType type, const string &partnerName, long principal, long interestRate,
+                    const string &startDate, const string &dueDate, const string &note)
+{
+    Loan *loan = new Loan(type, partnerName, principal, interestRate, startDate, dueDate, note);
+    loans.push_back(loan);
+    return loan;
+}
+
+// Cập nhật thông tin khoản vay (lãi suất hoặc ngày đến hạn)
+bool User::updateLoan(int loanId, long newInterestRate, const string &newDueDate)
+{
+    for (Loan *loan : loans)
+    {
+        if (loan->getId() == loanId)
+        {
+            if (newInterestRate >= 0)
+                loan->setInterestRate(newInterestRate);
+            if (!newDueDate.empty())
+                loan->setDueDate(newDueDate);
+            return true;
+        }
+    }
+    return false;
+}
+
+// xóa khoản vay thông qua ID
+bool User::removeLoan(int loanId)
+{
+    for (auto it = loans.begin(); it != loans.end(); ++it)
+    {
+        if ((*it)->getId() == loanId)
+        {
+            delete *it;
+            loans.erase(it);
+            return true;
+        }
+    }
+    return false;
+}
+
+// ===== Báo cáo =====
+// Tổng hợp toàn bộ giao dịch từ các Account để sinh Report
+Report User::generateReport(const string &fromDate, const string &toDate)
+{
+    vector<Transaction *> allTx;
+    for (Account *acc : accounts)
+    {
+        vector<Transaction *> rangeTx = acc->getTransactions(fromDate, toDate);
+        allTx.insert(allTx.end(), rangeTx.begin(), rangeTx.end());
+    }
+    Report report(fromDate, toDate);
+    report.build(allTx);
+    return report;
+}
+
+// Tổng số dư của toàn bộ tài khoản
+long User::getTotalBalance() const
+{
+    long total = 0;
+    for (Account *acc : accounts)
+    {
+        total += acc->getBalance();
+    }
+    return total;
+}
+
+// danh sách Account (id, ten tai khoan, so du)
+void User::listAccounts() const
+{
+    if (accounts.empty())
+    {
+        cout << "Danh sach rong" << endl;
+    }
+    else
+    {
+        cout << "Tai khoan cho nguoi dung \"" << fullName << "\":" << endl;
+        for (Account *acc : accounts)
+        {
+            cout << "[AccountID " << acc->getId() << "] "
+                 << acc->getName() << " So du: " << acc->getBalance() << endl;
+        }
+    }
+}
+// danh sách Account (id, ten tai khoan)
+void User::listAccountsBrief() const
+{
+    if (accounts.empty())
+    {
+        cout << "Danh sach rong" << endl;
+    }
+    else
+    {
+        cout << "Tai khoan cho nguoi dung \"" << fullName << "\":" << endl;
+        for (Account *acc : accounts)
+        {
+            cout << "[AccountID " << acc->getId() << "] "
+                 << acc->getName() << endl;
+        }
+    }
+}
+// Liệt kê tất cả các khoản vay (kèm thông tin tóm tắt)
+void User::listLoans() const
+{
+    if (loans.empty())
+    {
+        cout << "khong co khoan vay nao duoc ghi nhan" << endl;
+    }
+    else
+    {
+        cout << " khoan vay danh cho nguoi dung \"" << fullName << "\":" << endl;
+        for (Loan *loan : loans)
+        {
+            // Kiểm tra quá hạn phục vụ hiển thị
+            string statusStr = loanStatusToString(loan->getStatus());
+            cout << "  [LoanID " << loan->getId() << "] "
+                 << (loan->getType() == LoanType::BORROW ? "muon " : "cho muon")
+                 << loan->getPartnerName()
+                 << " | Tien goc: " << loan->getPrincipal()
+                 << " | Tra : " << loan->getPaidTotal()
+                 << " | con lai : " << loan->getRemaining()
+                 << " | tinh trang khoan vay o thoi diem hien tai: " << statusStr << endl;
+        }
+    }
+}
+
+
 
 

@@ -83,10 +83,12 @@ public:
 
     // danh sách Account
     void listAccounts() const;
-
+    void listAccountsBrief() const;
+    
+    //chuyển khoản đến người khác
+    bool transferToOtherUser(int fromAccountId, User* receiver, int toAccountId, long amount, const string& note);
     // Liệt kê tất cả các khoản vay (kèm thông tin tóm tắt)
     void listLoans() const;
 
-    bool transferToOtherUser(int fromAccountId, User* receiver, int toAccountId, long amount, const string& note);
 };
 #endif

@@ -35,6 +35,17 @@ public:
 
     const std::vector<User*>& getAllUsers() const;
 
+    //chuyển khoản đến user khác bằng email
+    bool transferUser(
+        int fromAccountId,
+        const std::string& receiverEmail,
+        int toAccountId,
+        long amount,
+        const std::string& note
+    );
+
+    User* findUserByEmail(const std::string& email);
+
 };
 
 #endif

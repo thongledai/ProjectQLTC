@@ -20,7 +20,7 @@ Menu::Menu(App &appRef) : app(appRef) {}
 void Menu::showMainMenu()
 {
     cout << "\n==== Menu Dang Nhap ====\n";
-    cout << "0. Quay lai trang chu\n";
+    cout << "0. Xem Menu\n";
     cout << "1. Dang ky\n";
     cout << "2. Dang nhap\n";
     cout << "3. Thoat ung dung\n";
@@ -29,7 +29,7 @@ void Menu::showMainMenu()
 void Menu::showUserMenu(const string &userName)
 {
     cout << "\n==== Menu Nguoi Dung - " << userName << " ====\n";
-    cout << "0. Quay lai trang chu\n";
+    cout << "0. Xem Menu\n";
     cout << "1. Them tai khoan\n";
     cout << "2. Danh sach tai khoan\n";
     cout << "3. Nap tien vao tai khoan\n";
@@ -41,8 +41,7 @@ void Menu::showUserMenu(const string &userName)
     cout << "9. Danh sach cac khoan vay\n";
     cout << "10. Ghi nhan thanh toan khoan vay\n";
     cout << "11. Tao bao cao (Thu / Chi)\n";
-    cout << "12. Xuat du lieu ra file CSV\n";
-    cout << "13. Dang xuat\n";
+    cout << "12. Dang xuat\n";
 }
 
 void Menu::run()
@@ -271,87 +270,40 @@ void Menu::run()
             }
             case 6:
             {
-                vector<User *> users = app.getAllUsers();
-
-                if (users.size() < 2)
-                {
-                    cout << "He thong can it nhat 2 User de thuc hien chuyen tien ngoai." << endl;
-                    break;
-                }
-
                 User *sender = app.getCurrentUser();
-
-                cout << "Tai khoan cua ban:" << endl;
+                cout << "Danh sach tai khoan cua ban:\n";
                 sender->listAccounts();
 
-                int fromAccountId;
-                cout << "Nhap ID tai khoan nguon (thuoc User hien tai): ";
-                cin >> fromAccountId;
-                bool check = true;
-                for (auto acc : sender->getAccounts())
-                {
-                    if (acc->getId() == fromAccountId)
-                    {
-                        check = false;
-                    }
-                }
-                if (check)
-                {
-                    cout << "id khong phu hop tai khoan khong ton tai trong user\n";
-                    break;
-                }
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                int fromId;
+                cout << "Chon ID tai khoan chuyen tien: ";
+                cin >> fromId;
+                cin.ignore();
 
-                cout << "Danh sach User khac:" << endl;
-                for (User *u : users)
-                {
-                    if (u->getId() != sender->getId())
-                        cout << "UserID: " << u->getId() << " - " << u->getFullName() << endl;
-                }
+                string email;
+                cout << "Nhap email nguoi nhan: ";
+                getline(cin, email);
 
-                int receiverUserId;
-                cout << "Nhap UserID nguoi nhan: ";
-                cin >> receiverUserId;
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "Danh sach tai khoan nguoi nhan:\n";
+                app.findUserByEmail(email)->listAccountsBrief();
 
-                User *receiver = nullptr;
-                for (User *u : users)
-                {
-                    if (u->getId() == receiverUserId)
-                    {
-                        receiver = u;
-                        break;
-                    }
-                }
-                if (receiver == nullptr)
-                {
-                    cout << "Khong tim thay User nhan." << endl;
-                    break;
-                }
-
-                cout << "Tai khoan cua User nhan:" << endl;
-                receiver->listAccounts();
-
-                int toAccountId;
-                cout << "Nhap ID tai khoan nhan: ";
-                cin >> toAccountId;
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                int toId;
+                cout << "Chon ID tai khoan nhan: ";
+                cin >> toId;
+                cin.ignore();
 
                 long amount;
-                cout << "Nhap so tien can chuyen: ";
+                cout << "Nhap so tien: ";
                 cin >> amount;
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cin.ignore();
 
                 string note;
-                cout << "Nhap ghi chu (co the bo trong): ";
+                cout << "Ghi chu: ";
                 getline(cin, note);
 
-                bool success = sender->transferToOtherUser(fromAccountId, receiver, toAccountId, amount, note);
-
-                if (success)
-                    cout << "Chuyen tien thanh cong!" << endl;
+                if (app.transferUser(fromId, email, toId, amount, note))
+                    cout << "Chuyen tien thanh cong!\n";
                 else
-                    cout << "Chuyen tien that bai!" << endl;
+                    cout << "Chuyen tien that bai!\n";
 
                 break;
             }
@@ -491,13 +443,7 @@ void Menu::run()
                 rep.display();
                 break;
             }
-
             case 12:
-            {
-                // chua code
-            }
-
-            case 13:
                 app.logout();
                 showMain = true;
                 showUser = true;
@@ -509,3 +455,5 @@ void Menu::run()
         }
     }
 }
+//g++ *.cpp -o Main 
+//.\Main 

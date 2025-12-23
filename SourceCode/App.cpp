@@ -1,5 +1,6 @@
 #include <iostream>
 #include "App.h"
+#include "User.h"
 
 using namespace std;
 
@@ -85,6 +86,35 @@ void App::logout()
 
 // Lấy thông tin User đang đăng nhập
 User *App::getCurrentUser() const { return currentUser; }
+
+User* App::findUserByEmail(const string& email) {
+    for (User* u : users) {
+        if (u->getEmail() == email) return u;
+    }
+    return nullptr;
+}
+
+bool App::transferUser(
+    int fromAccountId,
+    const string& receiverEmail,
+    int toAccountId,
+    long amount,
+    const string& note
+) {
+    User* sender = currentUser;
+    if (!sender) return false;
+
+    User* receiver = findUserByEmail(receiverEmail);
+    if (!receiver || receiver->getId() == sender->getId()) return false;
+
+    return sender->transferToOtherUser(
+        fromAccountId,
+        receiver,
+        toAccountId,
+        amount,
+        note
+    );
+}
 
 // Xuất dữ liệu ra file CSV
 void App::exportDataCSV(const string &filename)
