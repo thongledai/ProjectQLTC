@@ -106,15 +106,18 @@ void Menu::run() {
 
             switch (choice) {
                 case 1: {
+
                     string accName;
-                    double initBal;
+                    long initBal;
                     cout << "Nhập tên tài khoản mới: ";
                     getline(cin, accName);
                     cout << "Nhập số dư ban đầu (0 nếu không có): ";
                     cin >> initBal;
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    int id;
+                    cin>>id;
 
-                    user->addAccount(accName, initBal);
+                    user->addAccount(id,accName, initBal);
                     cout << "Đã thêm tài khoản \"" << accName << "\" thành công." << endl;
                     break;
                 }
@@ -147,7 +150,7 @@ void Menu::run() {
                     bool found = false;
                     for (Account* acc : user->getAccounts()) {
                         if (acc->getId() == accId) {
-                            acc->deposit(amt, title, category, note, date);
+                            acc->deposit(title,amt, date,category, note);
                             cout << "Đã nạp " << amt << " vào \"" << acc->getName()
                                  << "\". Số dư mới: " << acc->getBalance() << endl;
                             found = true;
@@ -184,10 +187,9 @@ void Menu::run() {
                     bool found = false;
                     for (Account* acc : user->getAccounts()) {
                         if (acc->getId() == accId) {
-                            if (acc->withdraw(amt, title, category, note, date)) {
+                            acc->withdraw(title,amt,date,category, note);
                                 cout << "Đã rút " << amt << " từ \"" << acc->getName()
                                      << "\". Số dư mới: " << acc->getBalance() << endl;
-                            }
                             found = true;
                             break;
                         }
@@ -227,7 +229,7 @@ void Menu::run() {
                     bool found = false;
                     for (Account* acc : user->getAccounts()) {
                         if (acc->getId() == accId) {
-                            acc->listTransactions();
+                            acc->getTransactions();
                             found = true;
                             break;
                         }

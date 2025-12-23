@@ -32,9 +32,6 @@ private:
 public:
     User(const string& fullName, const string& email, const string& password);
     // Giải phóng toàn bộ tài nguyên động mà User sở hữu
-<<<<<<< HEAD
-    ~User();
-=======
     ~User() {
         for (Account* acc : accounts) delete acc;
         for (Loan* loan : loans)     delete loan;
@@ -46,7 +43,6 @@ public:
     string getPassword() const { return password; }
     const vector<Account*>& getAccounts() const { return accounts; }
     const vector<Loan*>& getLoans() const { return loans; }
->>>>>>> 1c76f3357fd85264e2aa87cf6846ec64c5b0e613
 
     // ===== Getter / Setter =====
     int getId() const;
@@ -67,7 +63,7 @@ public:
     // ===== Account =====
 
     // Thêm tài khoản mới cho User
-    Account* addAccount(const int& id,const string& name, double initialBalance = 0.0);
+    Account* addAccount(const int& id,const string& name, long initialBalance = 0);
 
     // Xóa tài khoản theo ID
    bool removeAccount(int accountId);
