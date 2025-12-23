@@ -16,7 +16,7 @@ string transactionTypeToString(TransactionType t) {
 class Transaction {
 private:
     static int nextId;
-    
+    int id;
     string title;
     long amount;
     string date;
@@ -24,7 +24,6 @@ private:
     string category;
     string note;
 public:
-int id;
     Transaction(const string& title, long amount, const string& date, TransactionType type,
                 const string& category = "", const string& note = "") {
         this->id = ++nextId;
