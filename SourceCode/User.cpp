@@ -52,7 +52,7 @@ bool User::checkPassword(const string &pw) const
 // ===== Account =====
 
 // Thêm tài khoản mới cho User
-Account* User::addAccount(const int &id, const string &name, double initialBalance)
+Account* User::addAccount(const int &id, const string &name, long initialBalance)
 {
     for (Account* acc : accounts)
     {
@@ -66,6 +66,7 @@ Account* User::addAccount(const int &id, const string &name, double initialBalan
     accounts.push_back(account);
     return account;
 }
+
 
 // Xóa tài khoản theo ID
 bool User::removeAccount(int accountId)
@@ -97,7 +98,7 @@ bool User::renameAccount(int accountId, const string &newName)
 }
 
 // Chuyển tiền nội bộ giữa các tài khoản của cùng User
-bool User::transfer(int fromAccountId, int toAccountId, double amount, const string &note)
+bool User::transfer(int fromAccountId, int toAccountId, long amount, const string &note)
 {
     if (fromAccountId == toAccountId)
     {
@@ -138,7 +139,7 @@ bool User::transfer(int fromAccountId, int toAccountId, double amount, const str
 
 // ===== Loan =====
 
-Loan *User::addLoan(LoanType type, const string &partnerName, double principal, double interestRate,
+Loan *User::addLoan(LoanType type, const string &partnerName, long principal, long interestRate,
                     const string &startDate, const string &dueDate, const string &note)
 {
     Loan *loan = new Loan(type, partnerName, principal, interestRate, startDate, dueDate, note);
@@ -147,7 +148,7 @@ Loan *User::addLoan(LoanType type, const string &partnerName, double principal, 
 }
 
 // Cập nhật thông tin khoản vay (lãi suất hoặc ngày đến hạn)
-bool User::updateLoan(int loanId, double newInterestRate, const string &newDueDate)
+bool User::updateLoan(int loanId, long newInterestRate, const string &newDueDate)
 {
     for (Loan *loan : loans)
     {
