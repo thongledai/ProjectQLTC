@@ -8,7 +8,6 @@
 #include "Loan.h"
 #include "User.h"
 #include "App.h"
-#include "Menu.h"
 
 using namespace std;
 
@@ -22,8 +21,7 @@ string getToday() {
 }
 
 int main() {
-    App app;
-    Menu menu(app);
-    menu.run();
-    return 0;
+   User user("Phan Ngoc Trung","abc.com","12345");
+   cout<<user.getFullName();
+
 }
