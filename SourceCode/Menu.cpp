@@ -35,7 +35,7 @@ void Menu::showUserMenu(const string &userName)
     cout << "6. Xem danh sach giao dich (theo tai khoan)\n";
     cout << "7. Them khoan vay\n";
     cout << "8. Danh sach cac khoan vay\n";
-    cout << "9. Ghi nhan thanh toan khoan vay\n";
+    cout << "9. Thanh toan khoan vay\n";
     cout << "10. Tao bao cao (Thu / Chi)\n";
     cout << "11. Xuat du lieu ra file CSV\n";
     cout << "12. Dang xuat\n";
