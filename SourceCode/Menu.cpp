@@ -1,3 +1,4 @@
+
 #include "Menu.h"
 
 #include <iostream>
@@ -19,7 +20,7 @@ Menu::Menu(App &appRef) : app(appRef) {}
 void Menu::showMainMenu()
 {
     cout << "\n==== Menu Dang Nhap ====\n";
-    cout << "0. Xem Menu\n";
+    cout << "0. Quay lai trang chu\n";
     cout << "1. Dang ky\n";
     cout << "2. Dang nhap\n";
     cout << "3. Thoat ung dung\n";
@@ -27,20 +28,21 @@ void Menu::showMainMenu()
 
 void Menu::showUserMenu(const string &userName)
 {
-    cout << "\n==== Menu Nguoi Dung - "<<userName<<" ====\n";
-    cout << "0. Xem Menu\n";
+    cout << "\n==== Menu Nguoi Dung - " << userName << " ====\n";
+    cout << "0. Quay lai trang chu\n";
     cout << "1. Them tai khoan\n";
     cout << "2. Danh sach tai khoan\n";
     cout << "3. Nap tien vao tai khoan\n";
     cout << "4. Rut tien tu tai khoan\n";
     cout << "5. Chuyen tien giua cac tai khoan\n";
-    cout << "6. Xem danh sach giao dich (theo tai khoan)\n";
-    cout << "7. Them khoan vay\n";
-    cout << "8. Danh sach cac khoan vay\n";
-    cout << "9. Thanh toan khoan vay\n";
-    cout << "10. Tao bao cao (Thu / Chi)\n";
-    cout << "11. Xuat du lieu ra file CSV\n";
-    cout << "12. Dang xuat\n";
+    cout << "6. Chuyen tien giua cac user\n ";
+    cout << "7. Xem danh sach giao dich (theo tai khoan)\n";
+    cout << "8. Them khoan vay (Vay / Cho vay)\n";
+    cout << "9. Danh sach cac khoan vay\n";
+    cout << "10. Ghi nhan thanh toan khoan vay\n";
+    cout << "11. Tao bao cao (Thu / Chi)\n";
+    cout << "12. Xuat du lieu ra file CSV\n";
+    cout << "13. Dang xuat\n";
 }
 
 void Menu::run()
@@ -48,12 +50,14 @@ void Menu::run()
     bool running = true;
     bool showMain = true;
     bool showUser = true;
-    
+
     while (running)
     {
         if (app.getCurrentUser() == nullptr)
         {
-            if (showMain) {
+            // CHƯA ĐĂNG NHẬP
+            if (showMain)
+            {
                 showMainMenu();
                 showMain = false;
             }
@@ -69,8 +73,9 @@ void Menu::run()
 
             switch (choice)
             {
-            case 0:{
-                showMain = true;
+            case 0:
+            {
+                showMainMenu();
                 break;
             }
             case 1:
@@ -107,13 +112,14 @@ void Menu::run()
         }
         else
         {
-            //ĐÃ ĐĂNG NHẬP
+            // ĐÃ ĐĂNG NHẬP
             string userName = app.getCurrentUser()->getFullName();
-            
-            if (showUser) {
+
+            if (showUser)
+            {
                 showUserMenu(userName);
                 showUser = false;
-            } 
+            }
             cout << "\nNhap lua chon: ";
             int choice;
             if (!(cin >> choice))
@@ -128,8 +134,9 @@ void Menu::run()
 
             switch (choice)
             {
-            case 0:{
-                showUser = true;
+            case 0:
+            {
+                showUserMenu(userName);
                 break;
             }
             case 1:
@@ -146,8 +153,11 @@ void Menu::run()
                 cout << "Nhap ID: ";
                 cin >> id;
 
-                user->addAccount(id, accName, initBal);
-                cout << "Da them tai khoan \"" << accName << "\" thanh cong." << endl;
+                Account *newAcc = user->addAccount(id, accName, initBal);
+                if (newAcc != nullptr)
+                {
+                    cout << "Da them tai khoan \"" << accName << "\" thanh cong." << endl;
+                }
                 break;
             }
 
@@ -253,14 +263,100 @@ void Menu::run()
                 cin >> amt;
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-                cout << "Nhap ghi chu chuyen tien (khong bat buoc): ";
+                cout << "Nhap ghi chu chuyen tien ( khong bat buoc ): ";
                 getline(cin, note);
 
                 user->transfer(fromId, toId, amt, note);
                 break;
             }
-
             case 6:
+            {
+                vector<User *> users = app.getAllUsers();
+
+                if (users.size() < 2)
+                {
+                    cout << "He thong can it nhat 2 User de thuc hien chuyen tien ngoai." << endl;
+                    break;
+                }
+
+                User *sender = app.getCurrentUser();
+
+                cout << "Tai khoan cua ban:" << endl;
+                sender->listAccounts();
+
+                int fromAccountId;
+                cout << "Nhap ID tai khoan nguon (thuoc User hien tai): ";
+                cin >> fromAccountId;
+                bool check = true;
+                for (auto acc : sender->getAccounts())
+                {
+                    if (acc->getId() == fromAccountId)
+                    {
+                        check = false;
+                    }
+                }
+                if (check)
+                {
+                    cout << "id khong phu hop tai khoan khong ton tai trong user\n";
+                    break;
+                }
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+                cout << "Danh sach User khac:" << endl;
+                for (User *u : users)
+                {
+                    if (u->getId() != sender->getId())
+                        cout << "UserID: " << u->getId() << " - " << u->getFullName() << endl;
+                }
+
+                int receiverUserId;
+                cout << "Nhap UserID nguoi nhan: ";
+                cin >> receiverUserId;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+                User *receiver = nullptr;
+                for (User *u : users)
+                {
+                    if (u->getId() == receiverUserId)
+                    {
+                        receiver = u;
+                        break;
+                    }
+                }
+                if (receiver == nullptr)
+                {
+                    cout << "Khong tim thay User nhan." << endl;
+                    break;
+                }
+
+                cout << "Tai khoan cua User nhan:" << endl;
+                receiver->listAccounts();
+
+                int toAccountId;
+                cout << "Nhap ID tai khoan nhan: ";
+                cin >> toAccountId;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+                long amount;
+                cout << "Nhap so tien can chuyen: ";
+                cin >> amount;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+                string note;
+                cout << "Nhap ghi chu (co the bo trong): ";
+                getline(cin, note);
+
+                bool success = sender->transferToOtherUser(fromAccountId, receiver, toAccountId, amount, note);
+
+                if (success)
+                    cout << "Chuyen tien thanh cong!" << endl;
+                else
+                    cout << "Chuyen tien that bai!" << endl;
+
+                break;
+            }
+
+            case 7:
             {
                 int accId;
                 cout << "Nhap ID tai khoan can xem giao dich: ";
@@ -288,14 +384,14 @@ void Menu::run()
                 break;
             }
 
-            case 7:
+            case 8:
             {
                 int typeChoice;
                 string partner;
                 double principal, interest;
                 string startDate, dueDate, note;
 
-                cout << "Chon loai khoan vay (1.Vay, 2.Cho vay): ";
+                cout << "Chon loai khoan vay (1 = Vay, 2 = Cho vay): ";
                 cin >> typeChoice;
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
@@ -321,7 +417,7 @@ void Menu::run()
                 break;
             }
 
-            case 8:
+            case 9:
             {
                 string today = getToday();
                 for (Loan *loan : user->getLoans())
@@ -332,7 +428,7 @@ void Menu::run()
                 break;
             }
 
-            case 9:
+            case 10:
             {
                 int loanId;
                 double amt;
@@ -368,7 +464,7 @@ void Menu::run()
                 break;
             }
 
-            case 10:
+            case 11:
             {
                 string fromDate, toDate;
 
@@ -396,12 +492,12 @@ void Menu::run()
                 break;
             }
 
-            case 11:
+            case 12:
             {
-                //chua code
+                // chua code
             }
 
-            case 12:
+            case 13:
                 app.logout();
                 showMain = true;
                 showUser = true;
@@ -413,4 +509,3 @@ void Menu::run()
         }
     }
 }
-//g++ Main.cpp App.cpp Menu.cpp Utils.cpp Account.cpp Loan.cpp Report.cpp Transaction.cpp User.cpp -o Main.\
