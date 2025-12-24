@@ -135,12 +135,12 @@ void Menu::run()
                 getline(cin, email);
                 cout << "Nhap mat khau: ";
                 getline(cin, pass);
-                app.login(email, pass);
-                // if (app.login(email, pass));
-                // {
-                //     User *currUser = app.getCurrentUser();
-                //     currUser->setAccounts(FileRepository::loadAccounts(currUser->getId()));
-                // }
+                // app.login(email, pass);
+                if (app.login(email, pass));
+                {
+                    User *currUser = app.getCurrentUser();
+                    currUser->setAccounts(FileRepository::loadAccountsByUser(currUser->getId()));
+                }
                 break;
             }
             case 3:
