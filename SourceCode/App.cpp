@@ -4,10 +4,13 @@
 
 using namespace std;
 
-App::App() : currentUser(nullptr) {}
+App::App() : currentUser(nullptr) {
+    users = FileRepository::loadUsers();
+}
 
 App::~App()
-{
+{   
+    FileRepository::saveData(users);
     // Xóa toàn bộ user
     for (User *u : users)
     {
