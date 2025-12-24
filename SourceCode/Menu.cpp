@@ -40,8 +40,8 @@ void Menu::showAccountMenu()
     cout << "\n===== MENU TAI KHOAN =====\n";
     cout << "0. Xem menu\n";
     cout << "1. Them tai khoan\n";
-    cout << "2. Sua thong tin tai khoan (chua ho tro)\n";
-    cout << "3. Xoa tai khoan (chua ho tro)\n";
+    cout << "2. Sua thong tin tai khoan\n";
+    cout << "3. Xoa tai khoan\n";
     cout << "4. Xem danh sach tai khoan\n";
     cout << "5. Thoat\n";
 }
@@ -71,7 +71,7 @@ void Menu::showReportMenu()
     cout << "\n===== MENU BAO CAO =====\n";
     cout << "0. Xem menu\n";
     cout << "1. Bao cao thu chi tai khoan\n";
-    cout << "2. Bao cao thu chi user (chua ho tro)\n";
+    cout << "2. Bao cao thu chi user\n";
     cout << "3. Thoat\n";
 }
 
