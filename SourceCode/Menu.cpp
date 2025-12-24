@@ -101,7 +101,7 @@ void Menu::run()
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 continue;
             }
-            // cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
             switch (choice)
             {
             case 0:
@@ -111,40 +111,35 @@ void Menu::run()
             }
             case 1:
             {
-                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // <-- Chỉ cần gọi một lần trước khi bắt đầu nhập
-
                 string name, email, pass;
 
                 cout << "Nhap ho va ten: ";
                 getline(cin, name); // OK
 
                 cout << "Nhap email: ";
-                getline(cin, email); // OK
+                cin >> email;
 
                 cout << "Nhap mat khau: ";
-                getline(cin, pass);
+                cin >> pass;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
                 app.registerUser(name, email, pass);
                 break;
             }
             case 2:
             {
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 string email, pass;
                 cout << "Nhap email: ";
-                getline(cin, email);
+                cin >> email;
                 cout << "Nhap mat khau: ";
-                getline(cin, pass);
-                if (app.login(email, pass));
-                {
-                    User *currUser = app.getCurrentUser();
-                    currUser->setAccounts(FileRepository::loadAccountsByUser(currUser->getId()));
-                }
+                cin >> pass;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                app.login(email, pass);
                 break;
             }
             case 3:
             {
-                cout << "Thoat chuong trinh. Tam biet!" << endl;
+                cout << "Thoat chuong trinh!" << endl;
                 running = false;
                 break;
             default:
@@ -805,7 +800,22 @@ void Menu::run()
                 }
 
                 case 2:
-                    // BÁO CÁO THU CHI USER
+                {
+                    // ===== BAO CAO THU CHI USER =====
+                    cout << "\n===== BAO CAO THU CHI =====\n";
+
+                    string fromDate, toDate;
+                    cout << "Nhap ngay bat dau (YYYY-MM-DD): ";
+                    getline(cin, fromDate);
+
+                    cout << "Nhap ngay ket thuc (YYYY-MM-DD): ";
+                    getline(cin, toDate);
+
+                    Report report = user->generateReport(fromDate, toDate);
+                    report.display();
+
+                    break;
+                }
                 case 3:
                     break;
                 default:
