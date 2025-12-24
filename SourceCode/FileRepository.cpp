@@ -1,4 +1,5 @@
 #include "FileRepository.h"
+#include "Loan.h"
 #include <fstream>
 
 json FileRepository::loadDatabase() {
@@ -16,86 +17,74 @@ json FileRepository::loadDatabase() {
     return db;
 }
 
-json* FileRepository::findUserNode(json& db, int userId) {
-    for (auto& u : db["users"])
-        if (u["userId"] == userId)
-            return &u;
-    return nullptr;
-}
-
-std::vector<User*> FileRepository::loadUsers() {
+std::vector<User*> FileRepository::loadUsersWithData() {
     json db = loadDatabase();
     std::vector<User*> users;
 
-    for (auto& u : db["users"]) {
-        User* newUser = new User(u["userName"], u["userEmail"], u["userPassword"]);
-        newUser->setId(u["userId"]);
+    if (!db.contains("users")) return users;
 
-        users.push_back(newUser);
+    for (auto& jUser : db["users"]) {
+        User* user = new User(
+            jUser["userName"],
+            jUser["userEmail"],
+            jUser["userPassword"]
+        );
+        user->setId(jUser["userId"]);
+
+        // ===== LOANS =====
+        if (jUser.contains("loans")) {
+            for (auto& jLoan : jUser["loans"]) {
+                Loan* loan = new Loan(
+                    stringToLoanType(jLoan["loanType"]),
+                    jLoan["loanPartnerEmail"],
+                    jLoan["loanPrincipal"],
+                    jLoan["loanInterestRate"],
+                    jLoan["loanStartDate"],
+                    jLoan["loanDueDate"],
+                    jLoan["loanNote"]
+                );
+                loan->setId(jLoan["loanId"]);
+
+                user->addLoan(loan);
+            }
+        }
+
+        // ===== ACCOUNTS =====
+        if (jUser.contains("accounts")) {
+            for (auto& jAcc : jUser["accounts"]) {
+                Account* acc = new Account(
+                    jAcc["accountId"],
+                    jAcc["accountName"],
+                    jAcc["accountBalance"]
+                );
+
+                // ===== TRANSACTIONS =====
+                if (jAcc.contains("transactions")) {
+                    for (auto& jTr : jAcc["transactions"]) {
+                        Transaction* t = new Transaction(
+                            jTr["transactionTitle"],
+                            jTr["transactionAmount"],
+                            jTr["transactionDate"],
+                            stringToTransactionType(jTr["transactionType"]),
+                            jTr["transactionCategory"],
+                            jTr["transactionNote"]
+                        );
+                        t->setId(jTr["transactionId"]);
+
+                        acc->addTransaction(t);
+                    }
+                }
+
+                user->addAccount(acc);
+            }
+        }
+
+        users.push_back(user);
     }
+
     return users;
 }
 
-std::vector<Account*> FileRepository::loadAccountsByUser(int userId) {
-    json db = loadDatabase();
-    std::vector<Account*> res;
-
-    json* user = findUserNode(db, userId);
-    if (!user || !user->contains("accounts")) return res;
-
-    for (auto& jLoan : (*user)["accounts"]) {
-        Account* newAccount = new Account(jLoan["accountId"], jLoan["accountName"], jLoan["accountBalance"]);
-
-        res.push_back(newAccount);
-    }
-    return res;
-}
-
-std::vector<Loan*> FileRepository::loadLoanByUser(int userId) {
-    json db = loadDatabase();
-    std::vector<Loan*> res;
-
-    json* user = findUserNode(db, userId);
-    if (!user || !user->contains("loans")) return res;
-
-    for (auto& jLoan : (*user)["loans"]) {
-        Loan* newLoan = new Loan(jLoan["loanType"], jLoan["loanPartnerEmail"], jLoan["loanPrincipal"], jLoan["loanInterestRate"], jLoan["loanStartDate"], jLoan["loanDueDate"], jLoan["loanNote"]);
-
-        res.push_back(newLoan);
-    }
-    return res;
-}
-
-// std::vector<Transaction*> FileRepository::loadTransactionsByAccount(int userId, int accId) {
-//     json db = loadDatabase();
-//     std::vector<Transaction*> res;
-
-//     json* user = findUserNode(db, userId);
-//     if (!user) return res;
-
-//     for (auto& acc : (*user)["accounts"]) {
-//         if (acc["accountId"] != accId) continue;
-
-//         if (!acc.contains("transactions")) return res;
-
-//         for (auto& jTr : acc["transactions"]) {
-//             Transaction* t = new Transaction(
-//                 jTr["transactionTitle"].get<std::string>(),
-//                 jTr["transactionAmount"].get<long>(),
-//                 jTr["transactionDate"].get<std::string>(),
-//                 stringToTransactionType(
-//                     jTr["transactionType"].get<std::string>()
-//                 ),
-//                 jTr["transactionCategory"].get<std::string>(),
-//                 jTr["transactionNote"].get<std::string>()
-//             );
-
-//             t->setId(jTr["transactionId"]);
-//             res.push_back(t);
-//         }
-//     }
-//     return res;
-// }
 
 void FileRepository::saveData(const vector<User*>& users) {
     json j;
@@ -107,11 +96,25 @@ void FileRepository::saveData(const vector<User*>& users) {
         jUser["userEmail"] = u->getEmail();
         jUser["userPassword"] = u->getPassword();
 
-        for (auto acc : u->getAccounts()) {
+        for (auto loan: u->getLoans()) {
             json jLoan;
-            jLoan["accountId"] = acc->getId();
-            jLoan["accountName"] = acc->getName();
-            jLoan["accountBalance"] = acc->getBalance();
+            jLoan["loanId"] = loan->getId();
+            jLoan["loanType"] = loanTypeToString(loan->getType());
+            jLoan["loanPartnerEmail"] = loan->getPartnerEmail();
+            jLoan["loanPrincipal"] = loan->getPrincipal();
+            jLoan["loanInterestRate"] = loan->getInterestRate();
+            jLoan["loanStartDate"] = loan->getStartDate();
+            jLoan["loanDueDate"] = loan->getDueDate();
+            jLoan["loanNote"] = loan->getNote();
+
+            jUser["loans"].push_back(jLoan);
+        }
+
+        for (auto acc : u->getAccounts()) {
+            json jAcc;
+            jAcc["accountId"] = acc->getId();
+            jAcc["accountName"] = acc->getName();
+            jAcc["accountBalance"] = acc->getBalance();
 
             for (auto t : acc->getTransactions()) {
                 json jT;
@@ -123,10 +126,10 @@ void FileRepository::saveData(const vector<User*>& users) {
                 jT["transactionCategory"] = t->getCategory();
                 jT["transactionNote"] = t->getNote();
 
-                jLoan["transactions"].push_back(jT);
+                jAcc["transactions"].push_back(jT);
             }
 
-            jUser["accounts"].push_back(jLoan);
+            jUser["accounts"].push_back(jAcc);
         }
 
         j["users"].push_back(jUser);
