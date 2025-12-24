@@ -135,11 +135,12 @@ void Menu::run()
                 getline(cin, email);
                 cout << "Nhap mat khau: ";
                 getline(cin, pass);
-                if (app.login(email, pass))
-                {
-                    User *currUser = app.getCurrentUser();
-                    currUser->setAccounts(FileRepository::loadAccounts(currUser->getId()));
-                }
+                app.login(email, pass);
+                // if (app.login(email, pass));
+                // {
+                //     User *currUser = app.getCurrentUser();
+                //     currUser->setAccounts(FileRepository::loadAccounts(currUser->getId()));
+                // }
                 break;
             }
             case 3:
@@ -211,8 +212,9 @@ void Menu::run()
                     break;
                 }
                 case 2:
-                    // sửa thông tin tài khoản
-                    break;
+                {
+                    
+                }
                 case 3:
                     // xóa tk
                     break;
@@ -411,7 +413,7 @@ void Menu::run()
                     {
                         if (acc->getId() == accId)
                         {
-                            auto a = acc->listTransactions();
+                            auto a = acc->getTransactions();
                             for (auto x : a)
                             {
                                 x->print();

@@ -269,7 +269,7 @@ Report User::generateReport(const string &fromDate, const string &toDate)
     vector<Transaction *> allTx;
     for (Account *acc : accounts)
     {
-        vector<Transaction *> rangeTx = acc->getTransactions(fromDate, toDate);
+        vector<Transaction *> rangeTx = acc->getTransactions();
         allTx.insert(allTx.end(), rangeTx.begin(), rangeTx.end());
     }
     Report report(fromDate, toDate);

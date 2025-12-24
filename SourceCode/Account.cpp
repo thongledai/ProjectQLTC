@@ -29,20 +29,9 @@ const string& Account::getName() const { return name; }
 void Account::setName(const string& newName) { name = newName; }
 long Account::getBalance() const { return balance; }
 void Account::setBalance(long newBalance) { balance = newBalance; }
-const vector<Transaction*> Account::listTransactions() const { return this->transactions; }
+const vector<Transaction*> Account::getTransactions() const { return this->transactions; }
 
-// Trả về danh sách giao dịch trong khoảng [fromDate, toDate].
-// Nếu fromDate hoặc toDate rỗng thì không áp giới hạn tương ứng.
-vector<Transaction*> Account::getTransactions(const string& fromDate, const string& toDate) const {
-    vector<Transaction*> result;
-    for (Transaction* t : transactions) {
-        const string& d = t->getDate();
-        if (!fromDate.empty() && d < fromDate) continue;
-        if (!toDate.empty()   && d > toDate)   continue;
-        result.push_back(t);
-    }
-    return result;
-}
+
 
 Transaction Account::deposit (const string& title, long amount, const string& date, const string& category, const string& note) 
 { //thu
@@ -74,42 +63,14 @@ void Account::addTransaction (const Transaction& tx) {
     transactions.push_back(new Transaction(tx));
 }
 
-bool Account::editTransaction(const int& txId, const Transaction& updated) {
-    for (size_t i = 0; i < transactions.size(); ++i) {
-        Transaction* t = transactions.at(i);
-        if (t->getId() == txId) {
-            // xóa bỏ loại giao dịch + trả lại số dư trước đó
-            if (t->getType() == TransactionType::INCOME) 
-                this->balance -= t->getAmount();
-            else if (t->getType() == TransactionType::EXPENSE) 
-                this->balance += t->getAmount();
-            
-            t->setTitle(updated.getTitle());
-            t->setAmount(updated.getAmount());
-            t->setDate(updated.getDate());
-            t->setType(updated.getType());
-            t->setCategory(updated.getCategory());
-            t->setNote(updated.getNote());
-            // id không thay đổi
-            
-            // cập nhật số dư sau update
-            if (t->getType() == TransactionType::INCOME)
-                this->balance += t->getAmount();
-            else if (t->getType() == TransactionType::EXPENSE)
-                this->balance -= t->getAmount();
-            return true;
-        }
-    }
-    return false; // không tìm thấy ID 
-}
 
-bool Account::removeTransaction(const int& txId) {
-    if (transactions.empty()) return false; //nếu danh sách rỗng
+
+bool Account::editTransaction(const int& txId, const string& category) {
     for (size_t i = 0; i < transactions.size(); ++i) {
         Transaction* t = transactions.at(i);
         if (t->getId() == txId) {
-            //xóa gd
-            transactions.erase(transactions.begin() + i);
+            // Giao dịch đã được thực hiện thì chỉ được sửa phân loại
+            t->setCategory(category);
             return true;
         }
     }
