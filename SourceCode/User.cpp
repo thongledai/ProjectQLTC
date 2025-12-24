@@ -296,32 +296,28 @@ void User::listAccounts() const
         }
     }
 }
-// Liệt kê tất cả các khoản vay (kèm thông tin tóm tắt)
-void User::listLoans() const
-{
-    if (loans.empty())
-    {
-        cout << "khong co khoan vay nao duoc ghi nhan" << endl;
-    }
-    else
-    {
-        cout << " khoan vay danh cho nguoi dung \"" << fullName << "\":" << endl;
-        for (Loan *loan : loans)
-        {
-            // Kiểm tra quá hạn phục vụ hiển thị
+// Liệt kê tất cả các khoản vay
+void User::listLoans() const {
+    if (loans.empty()) {
+        cout << "Khong co khoan vay nao" << endl;
+    } else {
+        cout << "  Danh sach cac khoan vay - \"" << fullName << "\":" << endl;
+        for (Loan* loan : loans) {
+         // Kiểm tra quá hạn phục vụ hiển thị
             string statusStr = loanStatusToString(loan->getStatus());
-            cout << "  [LoanID " << loan->getId() << "] "
-                 << (loan->getType() == LoanType::BORROW ? "muon " : "cho muon")
-                 << loan->getPartnerName()
+            cout << "  [LoanID " << loan->getId() << "] | "
+                 << (loan->getType() == LoanType::BORROW ? "Vay " : "Cho Vay ")
+                 <<"\""<< loan->getPartnerEmail()<<"\""
                  << " | Tien goc: " << loan->getPrincipal()
-                 << " | Tra : " << loan->getPaidTotal()
-                 << " | con lai : " << loan->getRemaining()
-                 << " | tinh trang khoan vay o thoi diem hien tai: " << statusStr << endl;
+                 << " | Lai xuat: " << loan->getInterestRate()
+                 << " | Tong no: " << loan->getDueTotal()
+                 << " | Da tra: " << loan->getPaidTotal()
+                 << " | Con no: " << loan->getRemaining()
+                 << " | Tinh trang: " << statusStr << endl;
         }
     }
 }
-#include "User.h"
-#include <iostream>
+
 
 // Hàm tìm tài khoản theo ID
 Account* User::findAccountById(int accountId) const
