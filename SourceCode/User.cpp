@@ -42,6 +42,7 @@ void User::setId(int ID) { this->id = ID; }
 void User::setFullName(string fullname) { this->fullName = fullName; }
 void User::setEmail(string email) { this->email = email; }
 void User::setPassword(string password) { this->password = password; }
+void User::setAccounts(const vector<Account*>& acc) { this->accounts = acc; }
 
 // Kiểm tra xác thực mật khẩu
 bool User::checkPassword(const string &pw) const
