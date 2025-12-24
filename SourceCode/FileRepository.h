@@ -15,9 +15,9 @@ private:
     static json* findUserNode(json& db, int userId);
 
 public:
-    std::vector<User*> loadUsers();
-    std::vector<Account*> loadAccountsByUser(int userId);
-    std::vector<Loan*> loadLoanByUser(int userId);
+    static std::vector<User*> loadUsers();
+    static std::vector<Account*> loadAccountsByUser(int userId);
+    static std::vector<Loan*> loadLoanByUser(int userId);
 
     // static std::vector<Transaction*> loadTransactionsByAccount(int userId, int accId);
 
