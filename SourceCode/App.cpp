@@ -5,7 +5,7 @@
 using namespace std;
 
 App::App() : currentUser(nullptr) {
-    users = FileRepository::loadUsers();
+    users = FileRepository::loadUsersWithData();
 }
 
 App::~App()
