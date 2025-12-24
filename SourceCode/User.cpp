@@ -237,21 +237,30 @@ bool User::updateLoan(int loanId, long newInterestRate, const string &newDueDate
     }
     return false;
 }
+Loan* User::findLoanById(int loanId) const {
+    for (Loan* l : loans) {
+        if (l && l->getId() == loanId) return l;
+    }
+    return nullptr;
+}
 
-// xóa khoản vay thông qua ID
-bool User::removeLoan(int loanId)
-{
-    for (auto it = loans.begin(); it != loans.end(); ++it)
-    {
-        if ((*it)->getId() == loanId)
-        {
-            delete *it;
-            loans.erase(it);
-            return true;
+// match đối ứng(partnerEmail + type)
+Loan* User::findMatchingLoan(LoanType type, const string& partnerEmail,
+                            long principal, const string& startDate, const string& dueDate) const {
+    for (Loan* l : loans) {
+        if (!l) continue;
+        if (l->getType() == type &&
+            l->getPartnerEmail() == partnerEmail &&
+            l->getPrincipal() == principal &&
+            l->getStartDate() == startDate &&
+            l->getDueDate() == dueDate) {
+            return l;
         }
     }
-    return false;
+    return nullptr;
 }
+
+
 
 // ===== Báo cáo =====
 // Tổng hợp toàn bộ giao dịch từ các Account để sinh Report

@@ -104,10 +104,11 @@ void Loan::listPayments() const {
     } else {
         cout << "Payments for loan ID " << id << ":" << endl;
         for (Payment* p : payments) {
-            cout << "  [PaymentID " << p->getId() << "] "
+            cout << " [PaymentID " << p->getId() << "] "
                  << p->getDate() << " - Amount: " << p->getAmount();
             if (!p->getNote().empty()) cout << " (Note: " << p->getNote() << ")";
             cout << endl;
         }
     }
 }
+ 

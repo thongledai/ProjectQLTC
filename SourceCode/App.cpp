@@ -115,6 +115,21 @@ bool App::transferUser(
         note
     );
 }
+bool App::transferFromUser(
+    User* sender,
+    int fromAccountId,
+    const string& receiverEmail,
+    int toAccountId,
+    long amount,
+    const string& note
+) {
+    if (!sender) return false;
+
+    User* receiver = findUserByEmail(receiverEmail);
+    if (!receiver || receiver->getId() == sender->getId()) return false;
+
+    return sender->transferToOtherUser(fromAccountId, receiver, toAccountId, amount, note);
+}
 
 // Xuất dữ liệu ra file CSV
 void App::exportDataCSV(const string &filename)

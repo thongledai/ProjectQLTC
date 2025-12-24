@@ -43,6 +43,18 @@ public:
         long amount,
         const std::string& note
     );
+    //chuyển khoản vay/cho vay
+    bool transferFromUser(
+    User* sender,
+    int fromAccountId,
+    const string& receiverEmail,
+    int toAccountId,
+    long amount,
+    const string& note
+);
+
+
+    //chuyển khoản từ người dung
 
     User* findUserByEmail(const std::string& email);
 

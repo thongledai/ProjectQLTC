@@ -68,7 +68,7 @@ void Menu::run()
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 continue;
             }
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            //cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
             switch (choice)
             {
@@ -94,7 +94,7 @@ void Menu::run()
 
                 cout << "Nhap mat khau: ";
                 cin >> pass;
-                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Dọn dẹp để lần nhập sau không lỗi
+                //cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Dọn dẹp để lần nhập sau không lỗi
 
                 app.registerUser(name, email, pass);
                 break;
@@ -363,21 +363,86 @@ void Menu::run()
 
             case 8:
             {
-                int typeChoice;
-                string partner;
-                double principal, interest;
-                string startDate, dueDate, note;
+                User* A = app.getCurrentUser();
+                if (!A) { cout << "Ban chua dang nhap!\n"; break; }
 
-                cout << "Chon loai khoan vay (1 = Vay, 2 = Cho vay): ";
+                int typeChoice;
+                cout << "Chon loai (1 = Vay, 2 = Cho vay): ";
                 cin >> typeChoice;
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-                LoanType type = (typeChoice == 2 ? LoanType::LEND : LoanType::BORROW);
+                string partnerEmail;
+                cout << "Nhap email doi tac: ";
+                getline(cin, partnerEmail);
 
-                cout << "Nhap ten doi tac: ";
-                getline(cin, partner);
+                User* B = app.findUserByEmail(partnerEmail);
+                if (!B || B->getId() == A->getId()) {
+                    cout << "Email doi tac khong hop le!\n";
+                    break;
+                }
+
+                // ====== chọn account nguồn/đích tùy loại ======
+                int fromId, toId;
+                long amount;
+                double interest;
+                string startDate, dueDate, note;
+
+                if (typeChoice == 1) {
+                    // ===== A VAY B: tiền B -> A =====
+                    cout << "\n[A - Nguoi vay] Chon tai khoan NHAN tien:\n";
+                    A->listAccountsBrief();
+                    cout << "Nhap ID tai khoan nhan (A): ";
+                    cin >> toId;
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+                    if (A->findAccountById(toId) == nullptr) {
+                        cout << "Khong ton tai tai khoan nhan cua A!\n";
+                        break;
+                    }
+
+                    cout << "\n[B - Nguoi cho vay] Chon tai khoan GUI tien:\n";
+                    B->listAccountsBrief();
+                    cout << "Nhap ID tai khoan gui (B): ";
+                    cin >> fromId;
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+                    if (B->findAccountById(fromId) == nullptr) {
+                        cout << "Khong ton tai tai khoan gui cua B!\n";
+                        break;
+                    }
+                }
+                else if (typeChoice == 2) {
+                    // ===== A CHO B VAY: tiền A -> B =====
+                    cout << "\n[A - Nguoi cho vay] Chon tai khoan GUI tien:\n";
+                    A->listAccountsBrief();
+                    cout << "Nhap ID tai khoan gui (A): ";
+                    cin >> fromId;
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+                    if (A->findAccountById(fromId) == nullptr) {
+                        cout << "Khong ton tai tai khoan gui cua A!\n";
+                        break;
+                    }
+
+                    cout << "\n[B - Nguoi vay] Chon tai khoan NHAN tien:\n";
+                    B->listAccountsBrief();
+                    cout << "Nhap ID tai khoan nhan (B): ";
+                    cin >> toId;
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+                    if (B->findAccountById(toId) == nullptr) {
+                        cout << "Khong ton tai tai khoan nhan cua B!\n";
+                        break;
+                    }
+                }
+                else {
+                    cout << "Lua chon khong hop le!\n";
+                    break;
+                }
+
+                // ===== nhập thông tin khoản vay =====
                 cout << "Nhap so tien goc: ";
-                cin >> principal;
+                cin >> amount;
                 cout << "Nhap lai suat (%/nam): ";
                 cin >> interest;
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -386,11 +451,50 @@ void Menu::run()
                 getline(cin, startDate);
                 cout << "Nhap ngay den han (YYYY-MM-DD): ";
                 getline(cin, dueDate);
+
                 cout << "Nhap ghi chu (khong bat buoc): ";
                 getline(cin, note);
 
-                user->addLoan(type, partner, principal, interest, startDate, dueDate, note);
-                cout << "Da them khoan vay thanh cong." << endl;
+                // ====== 1) Chuyển tiền (tái dùng hàm chuyển khoản) ======
+                bool okTransfer = false;
+
+                if (typeChoice == 1) {
+                    // B -> A (phải chỉ định sender là B)
+                    okTransfer = app.transferFromUser(
+                        B, fromId, A->getEmail(), toId, amount,
+                        "Giai ngan vay: " + note
+                    );
+                } else {
+                    // A -> B (dùng hàm cũ luôn)
+                    okTransfer = app.transferUser(
+                        fromId, B->getEmail(), toId, amount,
+                        "Cho vay: " + note
+                    );
+                }
+
+                if (!okTransfer) {
+                    cout << "Chuyen tien that bai!\n";
+                    break;
+                }
+
+                // ====== 2) Tự động tạo khoản vay cho cả 2 ======
+                if (typeChoice == 1) {
+                    // A vay B
+                    A->addLoan(LoanType::BORROW, B->getEmail(), amount, interest, startDate, dueDate, note);
+
+                    string noteB = "Cho vay: " + A->getEmail();
+                    if (!note.empty()) noteB += " | " + note;
+                    B->addLoan(LoanType::LEND, A->getEmail(), amount, interest, startDate, dueDate, noteB);
+                } else {
+                    // A cho B vay
+                    A->addLoan(LoanType::LEND, B->getEmail(), amount, interest, startDate, dueDate, note);
+
+                    string noteB = "Vay tu: " + A->getEmail();
+                    if (!note.empty()) noteB += " | " + note;
+                    B->addLoan(LoanType::BORROW, A->getEmail(), amount, interest, startDate, dueDate, noteB);
+                }
+
+                cout << "Thanh cong! Da chuyen tien va tao khoan vay cho ca 2 ben.\n";
                 break;
             }
 
@@ -407,37 +511,95 @@ void Menu::run()
 
             case 10:
             {
+                User* A = app.getCurrentUser();
+                if (!A) { cout << "Ban chua dang nhap!\n"; break; }
+
                 int loanId;
-                double amt;
+                long amt;
                 string date, note;
 
                 cout << "Nhap ID khoan vay: ";
                 cin >> loanId;
+
+                Loan* loanA = A->findLoanById(loanId);
+                if (!loanA) {
+                    cout << "Khong tim thay khoan vay.\n";
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    break;
+                }
+
                 cout << "Nhap so tien thanh toan: ";
                 cin >> amt;
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-                cout << "Nhap ngay thanh toan (YYYY-MM-DD): ";
-                getline(cin, date);
+                date = getToday();
                 cout << "Nhap ghi chu (khong bat buoc): ";
                 getline(cin, note);
 
-                bool found = false;
-                for (Loan *loan : user->getLoans())
-                {
-                    if (loan->getId() == loanId)
-                    {
-                        loan->addPayment(amt, date, note);
-                        cout << "Da ghi nhan thanh toan. So du con lai: "
-                             << loan->getRemaining() << endl;
-                        found = true;
-                        break;
-                    }
+                // partnerEmail là email đối tác
+                string partnerEmail = loanA->getPartnerEmail();
+                User* B = app.findUserByEmail(partnerEmail);
+                if (!B) {
+                    cout << "Khong tim thay user doi tac (email): " << partnerEmail << "\n";
+                    break;
                 }
-                if (!found)
-                {
-                    cout << "Khong tim thay khoan vay." << endl;
+
+                // ===== chọn tài khoản de TRẢ =====
+                cout << "\nChon tai khoan tra no:\n";
+                A->listAccountsBrief();
+                int fromA;
+                cout << "Nhap ID tai khoan tra (A): ";
+                cin >> fromA;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+                if (A->findAccountById(fromA) == nullptr) {
+                    cout << "Khong ton tai tai khoan tra cua A!\n";
+                    break;
                 }
+
+                // ===== chọn tài khoản để NHẬN =====
+                cout << "\nChon tai khoan nhan tien:\n";
+                B->listAccountsBrief();
+                int toB;
+                cout << "Nhap ID tai khoan nhan (B): ";
+                cin >> toB;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+                if (B->findAccountById(toB) == nullptr) {
+                    cout << "Khong ton tai tai khoan nhan cua B!\n";
+                    break;
+                }
+
+                // ===== 1) chuyển tiền A -> B để cập nhật số dư =====
+                bool okTransfer = app.transferUser(fromA, B->getEmail(), toB, amt, "Thanh toan vay: " + note);
+                if (!okTransfer) {
+                    cout << "Chuyen tien thanh toan that bai!\n";
+                    break;
+                }
+
+                // ===== 2) cập nhật payment cho loan của A =====
+                loanA->addPayment(amt, date, note);
+
+                // ===== 3) cập nhật loan đối ứng của B =====
+                LoanType needTypeB = (loanA->getType() == LoanType::BORROW) ? LoanType::LEND : LoanType::BORROW;
+
+                Loan* loanB = B->findMatchingLoan(
+                    needTypeB,
+                    A->getEmail(),                 // partner của B chính là email A
+                    loanA->getPrincipal(),
+                    loanA->getStartDate(),
+                    loanA->getDueDate()
+                );
+
+                if (loanB) {
+                    string noteB = "Nhan thanh toan: " + A->getEmail();
+                    if (!note.empty()) noteB += " | " + note;
+                    loanB->addPayment(amt, date, noteB);
+                } else {
+                    cout << "Canh bao: Khong tim thay khoan vay doi ung ben B de cap nhat payment.\n";
+                }
+
+                cout << "Da thanh toan. Con lai (A): " << loanA->getRemaining() << "\n";
                 break;
             }
 

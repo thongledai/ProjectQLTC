@@ -69,6 +69,10 @@ public:
 
     Loan *addLoan(LoanType type, const string &partnerName, long principal, long interestRate,
                   const string &startDate, const string &dueDate, const string &note = "");
+    
+    //thanh toán vay
+    Loan* findLoanById(int loanId) const;
+    Loan* findMatchingLoan(LoanType type, const string& partnerEmail, long principal, const string& startDate, const string& dueDate) const;
 
     // Cập nhật thông tin khoản vay (lãi suất hoặc ngày đến hạn)
     bool updateLoan(int loanId, long newInterestRate = -1, const string &newDueDate = "");
