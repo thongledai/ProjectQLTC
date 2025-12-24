@@ -131,7 +131,7 @@ bool User::transfer(int fromAccountId, int toAccountId, long amount, const strin
     }
     string today = getToday();
     // Ghi nhận giao dịch chuyển tiền ở cả hai phía
-    fromAcc->withdraw("chuyen tien den " + toAcc->getName(), amount, today, " 0chuyen khoan", note);
+    fromAcc->withdraw("chuyen tien den " + toAcc->getName(), amount, today, " chuyen khoan", note);
     toAcc->deposit("chuyen tien tu " + fromAcc->getName(), amount, today, " chuyen khoan", note);
     cout << "da chuyen tien " << amount << " tu \"" << fromAcc->getName() << "\" den \"" << toAcc->getName() << "\"." << endl;
     return true;
