@@ -79,34 +79,30 @@ void Menu::run()
             }
             case 1:
             {
-                // 1. Xóa bộ nhớ đệm còn sót lại từ lệnh "cin >> lua_chon" trước đó
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // <-- Chỉ cần gọi một lần trước khi bắt đầu nhập
 
                 string name, email, pass;
 
                 cout << "Nhap ho va ten: ";
-                getline(cin, name); // Bây giờ sẽ không bị trôi nữa
+                getline(cin, name); // OK
 
                 cout << "Nhap email: ";
-                // Nếu email không có khoảng trắng, dùng cin >> là được nhưng phải xóa đệm sau đó
-                cin >> email;
-                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Xóa ký tự thừa nếu lỡ nhập "ytrung 123"
+                getline(cin, email); // OK
 
                 cout << "Nhap mat khau: ";
-                cin >> pass;
-                //cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Dọn dẹp để lần nhập sau không lỗi
+                getline(cin, pass);
 
                 app.registerUser(name, email, pass);
                 break;
             }
             case 2:
             {
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 string email, pass;
                 cout << "Nhap email: ";
-                cin >> email;
+                getline(cin, email);
                 cout << "Nhap mat khau: ";
-                cin >> pass;
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                getline(cin, pass);
                 app.login(email, pass);
                 break;
             }
