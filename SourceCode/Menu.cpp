@@ -35,7 +35,7 @@ void Menu::showUserMenu(const string &userName)
     cout << "3. Nap tien vao tai khoan\n";
     cout << "4. Rut tien tu tai khoan\n";
     cout << "5. Chuyen tien giua cac tai khoan\n";
-    cout << "6. Chuyen tien giua cac user\n ";
+    cout << "6. Chuyen tien giua cac user\n";
     cout << "7. Xem danh sach giao dich (theo tai khoan)\n";
     cout << "8. Them khoan vay (Vay / Cho vay)\n";
     cout << "9. Danh sach cac khoan vay\n";
@@ -79,14 +79,23 @@ void Menu::run()
             }
             case 1:
             {
+                // 1. Xóa bộ nhớ đệm còn sót lại từ lệnh "cin >> lua_chon" trước đó
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
                 string name, email, pass;
-                cout << "Nhap ho va ten:  ";
-                getline(cin, name);
-                cout << "Nhap email:  ";
+
+                cout << "Nhap ho va ten: ";
+                getline(cin, name); // Bây giờ sẽ không bị trôi nữa
+
+                cout << "Nhap email: ";
+                // Nếu email không có khoảng trắng, dùng cin >> là được nhưng phải xóa đệm sau đó
                 cin >> email;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Xóa ký tự thừa nếu lỡ nhập "ytrung 123"
+
                 cout << "Nhap mat khau: ";
                 cin >> pass;
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Dọn dẹp để lần nhập sau không lỗi
+
                 app.registerUser(name, email, pass);
                 break;
             }
@@ -279,7 +288,7 @@ void Menu::run()
                 cin >> fromId;
                 cin.ignore();
                 Account *FromAcc = sender->findAccountById(fromId);
-                if (FromAcc = nullptr)
+                if (FromAcc == nullptr)
                 {
                     cout << "khong ton tai tai khoan chuyen tien\n";
                     break;
@@ -291,10 +300,10 @@ void Menu::run()
                 User *FromUser = app.findUserByEmail(email);
                 if (FromUser == nullptr)
                 {
-                    cout << "khong ton tai email nguoi nhan\n";
+                    cout << "Khong ton tai email nguoi nhan\n";
                     break;
                 }
-                 cout << "Danh sach tai khoan nguoi nhan:\n";
+                cout << "Danh sach tai khoan nguoi nhan:\n";
                 FromUser->listAccountsBrief();
                 int toId;
                 cout << "Chon ID tai khoan nhan: ";
