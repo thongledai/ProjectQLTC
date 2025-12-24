@@ -28,6 +28,10 @@ public:
 
     // Menu dành cho user đã đăng nhập (user hiện tại)
     void showUserMenu(const string& userName);
+    void showAccountMenu();
+    void showTransactionMenu();
+    void showLoanMenu();
+    void showReportMenu();
 
     // Run the menu loop
     void run();
