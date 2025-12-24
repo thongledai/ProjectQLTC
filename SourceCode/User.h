@@ -78,9 +78,6 @@ public:
     // Cập nhật thông tin khoản vay (lãi suất hoặc ngày đến hạn)
     bool updateLoan(int loanId, long newInterestRate = -1, const string &newDueDate = "");
 
-    // xóa khoản vay thông qua ID
-    bool removeLoan(int loanId);
-
     // ===== Báo cáo =====
     // Tổng hợp toàn bộ giao dịch từ các Account để sinh Report
     Report generateReport(const string &fromDate = "", const string &toDate = "");
