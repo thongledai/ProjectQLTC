@@ -278,19 +278,35 @@ void Menu::run()
                 cout << "Chon ID tai khoan chuyen tien: ";
                 cin >> fromId;
                 cin.ignore();
-
+                Account *FromAcc = sender->findAccountById(fromId);
+                if (FromAcc = nullptr)
+                {
+                    cout << "khong ton tai tai khoan chuyen tien\n";
+                    break;
+                }
                 string email;
                 cout << "Nhap email nguoi nhan: ";
                 getline(cin, email);
 
                 cout << "Danh sach tai khoan nguoi nhan:\n";
-                app.findUserByEmail(email)->listAccountsBrief();
-
+                User *FromUser = app.findUserByEmail(email);
+                if (FromUser == nullptr)
+                {
+                    cout << "khong ton tai email nguoi nhan\n";
+                    break;
+                }
+                FromUser->listAccounts();
                 int toId;
                 cout << "Chon ID tai khoan nhan: ";
                 cin >> toId;
                 cin.ignore();
+                Account *ToAcc = FromUser->findAccountById(toId);
+                if (ToAcc == nullptr)
+                {
 
+                    cout << "khong ton tai tai khoan nguoi nhan\n";
+                    break;
+                }
                 long amount;
                 cout << "Nhap so tien: ";
                 cin >> amount;
@@ -455,5 +471,5 @@ void Menu::run()
         }
     }
 }
-//g++ *.cpp -o Main 
-//.\Main 
+// g++ *.cpp -o Main
+//.\Main
