@@ -39,9 +39,10 @@ void Menu::showUserMenu(const string &userName)
     cout << "7. Xem danh sach giao dich (theo tai khoan)\n";
     cout << "8. Them khoan vay (Vay / Cho vay)\n";
     cout << "9. Danh sach cac khoan vay\n";
-    cout << "10. Ghi nhan thanh toan khoan vay\n";
-    cout << "11. Tao bao cao (Thu / Chi)\n";
-    cout << "12. Dang xuat\n";
+    cout << "10. Xem lich su thanh toan khoan vay\n";
+    cout << "11. Ghi nhan thanh toan khoan vay\n";
+    cout << "12. Tao bao cao (Thu / Chi)\n";
+    cout << "13. Dang xuat\n";
 }
 
 void Menu::run()
@@ -363,7 +364,7 @@ void Menu::run()
                 if (!A) { cout << "Ban chua dang nhap!\n"; break; }
 
                 int typeChoice;
-                cout << "Chon loai (1 = Vay, 2 = Cho vay): ";
+                cout << "Chon loai (1.Vay, 2.Cho vay): ";
                 cin >> typeChoice;
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
@@ -385,49 +386,49 @@ void Menu::run()
 
                 if (typeChoice == 1) {
                     // ===== A VAY B: tiền B -> A =====
-                    cout << "\n[A - Nguoi vay] Chon tai khoan NHAN tien:\n";
+                    cout << "\n[Nguoi vay] Chon tai khoan NHAN tien:\n";
                     A->listAccountsBrief();
-                    cout << "Nhap ID tai khoan nhan (A): ";
+                    cout << "Nhap ID tai khoan nhan: ";
                     cin >> toId;
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
                     if (A->findAccountById(toId) == nullptr) {
-                        cout << "Khong ton tai tai khoan nhan cua A!\n";
+                        cout << "Khong ton tai tai khoan nhan!\n";
                         break;
                     }
 
-                    cout << "\n[B - Nguoi cho vay] Chon tai khoan GUI tien:\n";
+                    cout << "\n[Nguoi cho vay] Chon tai khoan GUI tien:\n";
                     B->listAccountsBrief();
-                    cout << "Nhap ID tai khoan gui (B): ";
+                    cout << "Nhap ID tai khoan gui: ";
                     cin >> fromId;
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
                     if (B->findAccountById(fromId) == nullptr) {
-                        cout << "Khong ton tai tai khoan gui cua B!\n";
+                        cout << "Khong ton tai tai khoan gui!\n";
                         break;
                     }
                 }
                 else if (typeChoice == 2) {
                     // ===== A CHO B VAY: tiền A -> B =====
-                    cout << "\n[A - Nguoi cho vay] Chon tai khoan GUI tien:\n";
+                    cout << "\n[Nguoi cho vay] Chon tai khoan GUI tien:\n";
                     A->listAccountsBrief();
-                    cout << "Nhap ID tai khoan gui (A): ";
+                    cout << "Nhap ID tai khoan gui: ";
                     cin >> fromId;
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
                     if (A->findAccountById(fromId) == nullptr) {
-                        cout << "Khong ton tai tai khoan gui cua A!\n";
+                        cout << "Khong ton tai tai khoan gui!\n";
                         break;
                     }
 
-                    cout << "\n[B - Nguoi vay] Chon tai khoan NHAN tien:\n";
+                    cout << "\n[Nguoi vay] Chon tai khoan NHAN tien:\n";
                     B->listAccountsBrief();
-                    cout << "Nhap ID tai khoan nhan (B): ";
+                    cout << "Nhap ID tai khoan nhan: ";
                     cin >> toId;
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
                     if (B->findAccountById(toId) == nullptr) {
-                        cout << "Khong ton tai tai khoan nhan cua B!\n";
+                        cout << "Khong ton tai tai khoan nhan!\n";
                         break;
                     }
                 }
@@ -439,7 +440,7 @@ void Menu::run()
                 // ===== nhập thông tin khoản vay =====
                 cout << "Nhap so tien goc: ";
                 cin >> amount;
-                cout << "Nhap lai suat (%/nam): ";
+                cout << "Nhap lai suat (%): ";
                 cin >> interest;
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
@@ -504,8 +505,37 @@ void Menu::run()
                 user->listLoans();
                 break;
             }
-
+            
             case 10:
+            {
+                User* user = app.getCurrentUser();
+                if (!user) {
+                    cout << "Ban chua dang nhap!\n";
+                    break;
+                }
+
+                int loanId;
+                cout << "Nhap ID khoan vay can xem lich su thanh toan: ";
+                cin >> loanId;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+                bool found = false;
+                for (Loan* loan : user->getLoans()) {
+                    if (loan->getId() == loanId) {
+                        loan->showPaymentHistory();
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    cout << "Khong tim thay khoan vay voi ID nay.\n";
+                }
+                break;
+            }
+
+
+            case 11:
             {
                 User* A = app.getCurrentUser();
                 if (!A) { cout << "Ban chua dang nhap!\n"; break; }
@@ -599,7 +629,7 @@ void Menu::run()
                 break;
             }
 
-            case 11:
+            case 12:
             {
                 string fromDate, toDate;
 
@@ -626,7 +656,7 @@ void Menu::run()
                 rep.display();
                 break;
             }
-            case 12:
+            case 13:
                 app.logout();
                 showMain = true;
                 showUser = true;

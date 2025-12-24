@@ -111,4 +111,17 @@ void Loan::listPayments() const {
         }
     }
 }
+void Loan::showPaymentHistory() const {
+    cout << "\nLich Su Thanh Toan Khoan Vay:\n";
+    cout << "Loan ID: " << id << endl;
+    cout << "Loai: " << loanTypeToString(type) << endl;
+    cout << "Doi tac: " << partnerEmail << endl;
+    cout << "Tien goc: " << principal << endl;
+    cout << "Tong no: " << getDueTotal() << endl;
+    cout << "Da tra: " << getPaidTotal() << endl;
+    cout << "Con lai: " << getRemaining() << endl;
+    cout << "Trang thai: " << loanStatusToString(status) << endl;
+    listPayments();  
+}
+
  

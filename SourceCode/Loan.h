@@ -92,6 +92,10 @@ public:
 
     // In ra danh sách đã thanh toán
     void listPayments() const;
+
+    // xem lịch sử thanh toán
+    void showPaymentHistory() const;
+
 };
 
 #endif
