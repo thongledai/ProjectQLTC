@@ -63,7 +63,9 @@ void Account::addTransaction (const Transaction& tx) {
     transactions.push_back(new Transaction(tx));
 }
 
-
+void Account::addTransaction(Transaction* trans) {
+    this->transactions.push_back(trans);
+}
 
 bool Account::editTransaction(const int& txId, const string& category) {
     for (size_t i = 0; i < transactions.size(); ++i) {
