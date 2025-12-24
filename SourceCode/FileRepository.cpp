@@ -51,7 +51,7 @@ std::vector<Account*> FileRepository::loadAccountsByUser(int userId) {
     return res;
 }
 
-std::vector<Loan*> loadLoanByUser(int userId) {
+std::vector<Loan*> FileRepository::loadLoanByUser(int userId) {
     json db = loadDatabase();
     std::vector<Loan*> res;
 
