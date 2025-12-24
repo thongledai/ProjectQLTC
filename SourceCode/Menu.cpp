@@ -217,19 +217,29 @@ void Menu::run()
                     cout << "Nhap id cua tai khoan can thay: ";
                     cin >> accId;
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    cout << "Nhap ten moi cho tai khoan: ";
                     string newName;
                     getline(cin, newName);
-                    cout << "Nhap ten moi cho tai khoan: ";
                     bool found = user->renameAccount(accId, newName);
                     if (!found)
                     {
-                        cout << "Khong tím thay tai khoan hoac so du khong du" << endl;
+                        cout << "Khong tím thay tai khoan!" << endl;
                     }
                     break;
                 }
                 case 3:
-                    // xóa tk
+                {
+                    int accId;
+                    cout << "Nhap id cua tai khoan can xoa: ";
+                    cin >> accId;
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    bool found = user->removeAccount(accId);
+                    if (!found)
+                    {
+                        cout << "Khong tím thay tai khoan!" << endl;
+                    }
                     break;
+                }
                 case 4:
                 {
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
