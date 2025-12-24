@@ -70,9 +70,10 @@ void Menu::showReportMenu()
 {
     cout << "\n===== MENU BAO CAO =====\n";
     cout << "0. Xem menu\n";
-    cout << "1. Bao cao thu chi tai khoan\n";
-    cout << "2. Bao cao thu chi user\n";
-    cout << "3. Thoat\n";
+    cout << "1. Xem tong so du\n";
+    cout << "2. Bao cao thu chi tai khoan\n";
+    cout << "3. Bao cao thu chi user\n";
+    cout << "4. Thoat\n";
 }
 
 void Menu::run()
@@ -769,9 +770,16 @@ void Menu::run()
                 switch (subChoice)
                 {
                 case 0:
+                {
                     showReportMenu();
                     break;
+                }
                 case 1:
+                {
+                    cout << "Tong so du cua toan bo tai khoan la:" << user->getTotalBalance();
+                    break;
+                }
+                case 2:
                 {
                     string fromDate, toDate;
 
@@ -799,7 +807,7 @@ void Menu::run()
                     break;
                 }
 
-                case 2:
+                case 3:
                 {
                     // ===== BAO CAO THU CHI USER =====
                     cout << "\n===== BAO CAO THU CHI =====\n";
@@ -816,7 +824,7 @@ void Menu::run()
 
                     break;
                 }
-                case 3:
+                case 4:
                     break;
                 default:
                     cout << "Lua chon khong hop le!\n";
