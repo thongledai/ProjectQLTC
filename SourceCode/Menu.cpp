@@ -213,7 +213,19 @@ void Menu::run()
                 }
                 case 2:
                 {
-                    
+                    int accId;
+                    cout << "Nhap id cua tai khoan can thay: ";
+                    cin >> accId;
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    string newName;
+                    getline(cin, newName);
+                    cout << "Nhap ten moi cho tai khoan: ";
+                    bool found = user->renameAccount(accId, newName);
+                    if (!found)
+                    {
+                        cout << "Khong tím thay tai khoan hoac so du khong du" << endl;
+                    }
+                    break;
                 }
                 case 3:
                     // xóa tk
