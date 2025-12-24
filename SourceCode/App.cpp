@@ -1,7 +1,7 @@
 #include <iostream>
 #include "App.h"
 #include "User.h"
-
+#include "FileRepository.h"
 using namespace std;
 
 App::App() : currentUser(nullptr) {
