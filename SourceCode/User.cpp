@@ -52,21 +52,20 @@ bool User::checkPassword(const string &pw) const
 // ===== Account =====
 
 // Thêm tài khoản mới cho User
-Account* User::addAccount(const int &id, const string &name, long initialBalance)
+Account *User::addAccount(const int &id, const string &name, long initialBalance)
 {
-    for (Account* acc : accounts)
+    for (Account *acc : accounts)
     {
         if (acc->getId() == id)
         {
             cout << "ID da ton tai, vui long nhap lai." << endl;
-            return nullptr;  // trả về nullptr báo không thêm được
+            return nullptr; // trả về nullptr báo không thêm được
         }
     }
-    Account* account = new Account(id, name, initialBalance);
+    Account *account = new Account(id, name, initialBalance);
     accounts.push_back(account);
     return account;
 }
-
 
 // Xóa tài khoản theo ID
 bool User::removeAccount(int accountId)
@@ -137,8 +136,8 @@ bool User::transfer(int fromAccountId, int toAccountId, long amount, const strin
     return true;
 }
 
-//Chuyển tiền giữa các User
-bool User::transferToOtherUser(int fromAccountId, User* receiver, int toAccountId, long amount, const string& note)
+// Chuyển tiền giữa các User
+bool User::transferToOtherUser(int fromAccountId, User *receiver, int toAccountId, long amount, const string &note)
 {
     if (receiver == nullptr)
     {
@@ -159,8 +158,8 @@ bool User::transferToOtherUser(int fromAccountId, User* receiver, int toAccountI
     }
 
     // Tìm tài khoản nguồn của User hiện tại
-    Account* fromAcc = nullptr;
-    for (Account* acc : accounts)
+    Account *fromAcc = nullptr;
+    for (Account *acc : accounts)
     {
         if (acc->getId() == fromAccountId)
         {
@@ -181,8 +180,8 @@ bool User::transferToOtherUser(int fromAccountId, User* receiver, int toAccountI
     }
 
     // Tìm tài khoản đích của User nhận
-    Account* toAcc = nullptr;
-    for (Account* acc : receiver->getAccounts())
+    Account *toAcc = nullptr;
+    for (Account *acc : receiver->getAccounts())
     {
         if (acc->getId() == toAccountId)
         {
@@ -199,14 +198,14 @@ bool User::transferToOtherUser(int fromAccountId, User* receiver, int toAccountI
     string today = getToday();
 
     // Ghi nhận giao dịch rút tiền ở User gửi
-    fromAcc->withdraw("Chuyen tien den " + toAcc->getName() + " (User: " + receiver->getFullName() + ")", 
+    fromAcc->withdraw("Chuyen tien den " + toAcc->getName() + " (User: " + receiver->getFullName() + ")",
                       amount, today, "0chuyen khoan ngoai", note);
 
     // Ghi nhận giao dịch gửi tiền ở User nhận
-    toAcc->deposit("Chuyen tien tu " + fromAcc->getName() + " (User: " + fullName + ")", 
+    toAcc->deposit("Chuyen tien tu " + fromAcc->getName() + " (User: " + fullName + ")",
                    amount, today, "chuyen khoan ngoai", note);
 
-    cout << "Da chuyen " << amount << " tu tai khoan \"" << fromAcc->getName() << "\" cua User \"" 
+    cout << "Da chuyen " << amount << " tu tai khoan \"" << fromAcc->getName() << "\" cua User \""
          << fullName << "\" den tai khoan \"" << toAcc->getName() << "\" cua User \"" << receiver->getFullName() << "\"." << endl;
 
     return true;
@@ -297,23 +296,6 @@ void User::listAccounts() const
         }
     }
 }
-// danh sách Account (id, ten tai khoan)
-void User::listAccountsBrief() const
-{
-    if (accounts.empty())
-    {
-        cout << "Danh sach rong" << endl;
-    }
-    else
-    {
-        cout << "Tai khoan cho nguoi dung \"" << fullName << "\":" << endl;
-        for (Account *acc : accounts)
-        {
-            cout << "[AccountID " << acc->getId() << "] "
-                 << acc->getName() << endl;
-        }
-    }
-}
 // Liệt kê tất cả các khoản vay (kèm thông tin tóm tắt)
 void User::listLoans() const
 {
@@ -338,7 +320,18 @@ void User::listLoans() const
         }
     }
 }
+#include "User.h"
+#include <iostream>
 
-
-
-
+// Hàm tìm tài khoản theo ID
+Account* User::findAccountById(int accountId) const
+{
+    for (Account* acc : accounts)
+    {
+        if (acc->getId() == accountId)
+        {
+            return acc; // tìm thấy tài khoản, trả về con trỏ
+        }
+    }
+    return nullptr; // không tìm thấy trả về nullptr
+}
