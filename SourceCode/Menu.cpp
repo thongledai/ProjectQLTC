@@ -272,7 +272,7 @@ void Menu::run()
             {
                 User *sender = app.getCurrentUser();
                 cout << "Danh sach tai khoan cua ban:\n";
-                sender->listAccounts();
+                sender->listAccountsBrief();
 
                 int fromId;
                 cout << "Chon ID tai khoan chuyen tien: ";
@@ -288,14 +288,14 @@ void Menu::run()
                 cout << "Nhap email nguoi nhan: ";
                 getline(cin, email);
 
-                cout << "Danh sach tai khoan nguoi nhan:\n";
                 User *FromUser = app.findUserByEmail(email);
                 if (FromUser == nullptr)
                 {
                     cout << "khong ton tai email nguoi nhan\n";
                     break;
                 }
-                FromUser->listAccounts();
+                 cout << "Danh sach tai khoan nguoi nhan:\n";
+                FromUser->listAccountsBrief();
                 int toId;
                 cout << "Chon ID tai khoan nhan: ";
                 cin >> toId;
