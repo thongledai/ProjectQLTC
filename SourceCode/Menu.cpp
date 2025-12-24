@@ -135,7 +135,6 @@ void Menu::run()
                 getline(cin, email);
                 cout << "Nhap mat khau: ";
                 getline(cin, pass);
-                // app.login(email, pass);
                 if (app.login(email, pass));
                 {
                     User *currUser = app.getCurrentUser();
@@ -242,13 +241,7 @@ void Menu::run()
                 }
                 case 4:
                 {
-                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                    string email, pass;
-                    cout << "Nhap email: ";
-                    getline(cin, email);
-                    cout << "Nhap mat khau: ";
-                    getline(cin, pass);
-                    app.login(email, pass);
+                    user->listAccounts();
                     break;
                 }
 
