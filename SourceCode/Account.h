@@ -27,11 +27,7 @@ class Account{
         void setName(const std::string& newName);
         long getBalance() const;
         void setBalance(long newBalance);
-        const std::vector<Transaction*> listTransactions() const;
-
-        // Trả về danh sách giao dịch trong khoảng [fromDate, toDate].
-        // Nếu fromDate hoặc toDate rỗng thì không áp giới hạn tương ứng.
-        std::vector<Transaction*> getTransactions(const std::string& fromDate = "", const std::string& toDate = "") const;
+        const std::vector<Transaction*> getTransactions() const;
 
         Transaction deposit (const std::string& title, long amount, const std::string& date,
                              const std::string& category, const std::string& note);

@@ -342,7 +342,7 @@ void Menu::run()
                 {
                     if (acc->getId() == accId)
                     {
-                        auto a = acc->listTransactions();
+                        auto a = acc->getTransactions();
                         for (auto x : a)
                         {
                             x->print();

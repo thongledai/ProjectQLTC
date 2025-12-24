@@ -29,20 +29,7 @@ const string& Account::getName() const { return name; }
 void Account::setName(const string& newName) { name = newName; }
 long Account::getBalance() const { return balance; }
 void Account::setBalance(long newBalance) { balance = newBalance; }
-const vector<Transaction*> Account::listTransactions() const { return this->transactions; }
-
-// Trả về danh sách giao dịch trong khoảng [fromDate, toDate].
-// Nếu fromDate hoặc toDate rỗng thì không áp giới hạn tương ứng.
-vector<Transaction*> Account::getTransactions(const string& fromDate, const string& toDate) const {
-    vector<Transaction*> result;
-    for (Transaction* t : transactions) {
-        const string& d = t->getDate();
-        if (!fromDate.empty() && d < fromDate) continue;
-        if (!toDate.empty()   && d > toDate)   continue;
-        result.push_back(t);
-    }
-    return result;
-}
+const vector<Transaction*> Account::getTransactions() const { return this->transactions; }
 
 Transaction Account::deposit (const string& title, long amount, const string& date, const string& category, const string& note) 
 { //thu
