@@ -331,3 +331,20 @@ Account* User::findAccountById(int accountId) const
     }
     return nullptr; // không tìm thấy trả về nullptr
 }
+// danh sách Account (id, ten tai khoan)
+void User::listAccountsBrief() const
+{
+    if (accounts.empty())
+    {
+        cout << "Danh sach rong" << endl;
+    }
+    else
+    {
+        cout << "Tai khoan cho nguoi dung \"" << fullName << "\":" << endl;
+        for (Account *acc : accounts)
+        {
+            cout << "[AccountID " << acc->getId() << "] "
+                 << acc->getName() << endl;
+        }
+    }
+}
