@@ -16,9 +16,10 @@ using namespace std;
 string getToday();
 
 // Class User: đại diện cho một người người dùng của hệ thống(có tài khoản và khoản)
-class User {
+class User
+{
 private:
-    static int nextId;                 // Biến tĩnh dùng để sinh ID tự tăng
+    static int nextId; // Biến tĩnh dùng để sinh ID tự tăng
     int id;
     string fullName;
     string password;
@@ -26,11 +27,11 @@ private:
 
     // User sở hữu nhiều Account và Loan
     // Dùng con trỏ để quản lý động vòng đời đối tượng
-    vector<Account*> accounts;
-    vector<Loan*> loans;
+    vector<Account *> accounts;
+    vector<Loan *> loans;
 
 public:
-    User(const string& fullName, const string& email, const string& password);
+    User(const string &fullName, const string &email, const string &password);
     // Giải phóng toàn bộ tài nguyên động mà User sở hữu
     ~User();
 
@@ -39,8 +40,8 @@ public:
     string getFullName() const;
     string getEmail() const;
     string getPassword() const;
-    const vector<Account*>& getAccounts() const;
-    const vector<Loan*>& getLoans() const;
+    const vector<Account *> &getAccounts() const;
+    const vector<Loan *> &getLoans() const;
 
     void setId(int ID);
     void setFullName(string fullname);
@@ -48,49 +49,49 @@ public:
     void setPassword(string password);
 
     // Kiểm tra xác thực mật khẩu
-    bool checkPassword(const string& pw) const;
-  
+    bool checkPassword(const string &pw) const;
+
     // ===== Account =====
 
     // Thêm tài khoản mới cho User
-    Account* addAccount(const int& id,const string& name, long initialBalance = 0);
+    Account *addAccount(const int &id, const string &name, long initialBalance = 0);
 
     // Xóa tài khoản theo ID
-   bool removeAccount(int accountId);
+    bool removeAccount(int accountId);
 
     // Đổi tên tài khoản hiện có theo ID
-    bool renameAccount(int accountId, const string& newName);
+    bool renameAccount(int accountId, const string &newName);
 
     // Chuyển tiền nội bộ giữa các tài khoản của cùng User
-    bool transfer(int fromAccountId, int toAccountId, long amount, const string& note = "");
+    bool transfer(int fromAccountId, int toAccountId, long amount, const string &note = "");
 
-     // ===== Loan =====
+    // ===== Loan =====
 
-    Loan* addLoan(LoanType type, const string& partnerName, long principal, long interestRate,
-                  const string& startDate, const string& dueDate, const string& note = "");
+    Loan *addLoan(LoanType type, const string &partnerName, long principal, long interestRate,
+                  const string &startDate, const string &dueDate, const string &note = "");
 
     // Cập nhật thông tin khoản vay (lãi suất hoặc ngày đến hạn)
-    bool updateLoan(int loanId, long newInterestRate = -1, const string& newDueDate = "");
+    bool updateLoan(int loanId, long newInterestRate = -1, const string &newDueDate = "");
 
     // xóa khoản vay thông qua ID
     bool removeLoan(int loanId);
 
     // ===== Báo cáo =====
     // Tổng hợp toàn bộ giao dịch từ các Account để sinh Report
-    Report generateReport(const string& fromDate = "", const string& toDate = "");
+    Report generateReport(const string &fromDate = "", const string &toDate = "");
 
     // Tổng số dư của toàn bộ tài khoản
     long getTotalBalance() const;
 
     // danh sách Account
     void listAccounts() const;
-    
-    //chuyển khoản đến người khác
-    bool transferToOtherUser(int fromAccountId, User* receiver, int toAccountId, long amount, const string& note);
+
+    // chuyển khoản đến người khác
+    bool transferToOtherUser(int fromAccountId, User *receiver, int toAccountId, long amount, const string &note);
     // Liệt kê tất cả các khoản vay (kèm thông tin tóm tắt)
     void listLoans() const;
     // kiểm tra xem có tồn tại Acount có ID cần tìm không
-    Account* findAccountById(int accountId) const;
-
+    Account *findAccountById(int accountId) const;
+    void listAccountsBrief() const;
 };
 #endif
