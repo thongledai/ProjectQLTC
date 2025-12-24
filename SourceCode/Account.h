@@ -36,6 +36,7 @@ class Account{
                               const std::string& category, const std::string& note);
 
         void addTransaction (const Transaction& tx);
+        void addTransaction(Transaction* trans);
         bool editTransaction(const int& txId, const string& category );
         
 
