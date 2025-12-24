@@ -27,11 +27,11 @@ string loanStatusToString(LoanStatus s) {
 }
 
 // Class Loan: hồ sơ vay và cho vay
-Loan::Loan(LoanType type, const string& partnerName, long principal, double interestRate,
+Loan::Loan(LoanType type, const string& partnerEmail, long principal, double interestRate,
            const string& startDate, const string& dueDate, const string& note) {
     this->id = ++nextId; // cấp ID tự động
     this->type = type;
-    this->partnerName = partnerName;
+    this->partnerEmail = partnerEmail;
     this->principal = principal;
     this->interestRate = interestRate;
     this->startDate = startDate;
