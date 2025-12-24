@@ -41,8 +41,8 @@ const vector<Loan *> &User::getLoans() const { return loans; }
 void User::setId(int ID) { this->id = ID; }
 void User::setFullName(string fullname) { this->fullName = fullName; }
 void User::setEmail(string email) { this->email = email; }
-void User::setPassword(string password) { this->password = password; }
-void User::setAccounts(const vector<Account*>& acc) { this->accounts = acc; }
+void User::addAccount(Account* acc) { this->accounts.push_back(acc); }
+void User::addLoan(Loan* l) { this->loans.push_back(l); }
 
 // Kiểm tra xác thực mật khẩu
 bool User::checkPassword(const string &pw) const
