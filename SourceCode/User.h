@@ -47,6 +47,7 @@ public:
     void setFullName(string fullname);
     void setEmail(string email);
     void setPassword(string password);
+    void setAccounts(const vector<Account*>& acc);
 
     // Kiểm tra xác thực mật khẩu
     bool checkPassword(const string &pw) const;
