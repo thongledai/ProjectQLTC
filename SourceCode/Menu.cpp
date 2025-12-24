@@ -115,14 +115,13 @@ void Menu::run()
                 string name, email, pass;
 
                 cout << "Nhap ho va ten: ";
-                getline(cin, name); // OK
+                getline(cin, name);
 
                 cout << "Nhap email: ";
-                cin >> email;
+                getline(cin, email);
 
                 cout << "Nhap mat khau: ";
-                cin >> pass;
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                getline(cin, pass);
 
                 app.registerUser(name, email, pass);
                 break;
@@ -131,10 +130,9 @@ void Menu::run()
             {
                 string email, pass;
                 cout << "Nhap email: ";
-                cin >> email;
+                getline(cin, email);
                 cout << "Nhap mat khau: ";
-                cin >> pass;
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                getline(cin, pass);
                 app.login(email, pass);
                 break;
             }
