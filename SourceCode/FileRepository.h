@@ -15,10 +15,11 @@ private:
     static json* findUserNode(json& db, int userId);
 
 public:
-    static std::vector<User*> loadUsers();
-    static std::vector<Account*> loadAccounts(int userId);
+    std::vector<User*> loadUsers();
+    std::vector<Account*> loadAccountsByUser(int userId);
+    std::vector<Loan*> loadLoanByUser(int userId);
 
-    static std::vector<Transaction*> loadTransactionsByAccount(int userId, int accId);
+    // static std::vector<Transaction*> loadTransactionsByAccount(int userId, int accId);
 
     static void saveData(const vector<User*>& users);
 };
