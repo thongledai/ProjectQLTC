@@ -200,7 +200,7 @@ bool User::transferToOtherUser(int fromAccountId, User *receiver, int toAccountI
 
     // Ghi nhận giao dịch rút tiền ở User gửi
     fromAcc->withdraw("Chuyen tien den " + toAcc->getName() + " (User: " + receiver->getFullName() + ")",
-                      amount, today, "0chuyen khoan ngoai", note);
+                      amount, today, "chuyen khoan ngoai", note);
 
     // Ghi nhận giao dịch gửi tiền ở User nhận
     toAcc->deposit("Chuyen tien tu " + fromAcc->getName() + " (User: " + fullName + ")",

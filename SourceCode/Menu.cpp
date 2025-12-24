@@ -88,7 +88,6 @@ void Menu::run()
     {
         if (app.getCurrentUser() == nullptr) // CHƯA ĐĂNG NHẬP
         {
-
             if (showMain)
             {
                 showMainMenu();
@@ -141,11 +140,14 @@ void Menu::run()
                 cout << "Thoat chuong trinh!" << endl;
                 running = false;
                 break;
+            }
             default:
+            {
                 cout << "Lua chon khong hop le. Vui long nhap đung so trong menu." << endl;
             }
             }
         }
+
         else // =====DA DANG NHAP =====
         {
             string userName = app.getCurrentUser()->getFullName();
@@ -193,7 +195,7 @@ void Menu::run()
                         int id;
                         cout << "Nhap ID: ";
                         cin >> id;
-                        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // FIX NUỐT getline
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
                         string accName;
                         long initBal;
                         cout << "Nhap ten tai khoan moi: ";
@@ -246,13 +248,18 @@ void Menu::run()
                     }
 
                     case 5:
+                    {
                         case1 = false;
                         break;
+                    }
                     default:
+                    {
                         cout << "Lua chon khong hop le!\n";
                         break;
                     }
+                    }
                 }
+                break;
             }
             case 2: // ===== GIAO DICH =====
             {
@@ -296,7 +303,7 @@ void Menu::run()
                             if (acc->getId() == accId)
                             {
                                 acc->deposit(title, amt, date, category, note);
-                                cout << "Da nạp " << amt << " vao \"" << acc->getName()
+                                cout << "Da nap " << amt << " vao \"" << acc->getName()
                                      << "\". So du moi: " << acc->getBalance() << endl;
                                 found = true;
                                 break;
@@ -376,7 +383,7 @@ void Menu::run()
                         Account *FromAcc = sender->findAccountById(fromId);
                         if (FromAcc == nullptr)
                         {
-                            cout << "khong ton tai tai khoan chuyen tien\n";
+                            cout << "Khong ton tai tai khoan chuyen tien\n";
                             break;
                         }
                         string email;
@@ -448,14 +455,18 @@ void Menu::run()
                     }
 
                     case 6:
+                    {
                         case2 = false;
                         break;
-
+                    }
                     default:
+                    {
                         cout << "Lua chon khong hop le!\n";
                         break;
                     }
+                    }
                 }
+                break;
             }
             case 3: // ===== KHOAN VAY =====
             {
@@ -763,15 +774,19 @@ void Menu::run()
                         }
                         break;
                     }
-
                     case 5:
+                    {
                         case3 = false;
                         break;
+                    }
                     default:
+                    {
                         cout << "Lua chon khong hop le!\n";
                         break;
                     }
+                    }
                 }
+                break;
             }
             case 4: // ===== BAO CAO =====
             {
@@ -841,13 +856,18 @@ void Menu::run()
                         break;
                     }
                     case 4:
+                    {
                         case4 = false;
                         break;
+                    }
                     default:
+                    {
                         cout << "Lua chon khong hop le!\n";
                         break;
                     }
+                    }
                 }
+                break;
             }
             case 5:
             {
