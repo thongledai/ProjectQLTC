@@ -27,11 +27,19 @@ string loanStatusToString(LoanStatus s) {
 }
 
 // Class Loan: hồ sơ vay và cho vay
+<<<<<<< HEAD
 Loan::Loan(LoanType type, const string& partnerName, long principal, double interestRate,
            const string& startDate, const string& dueDate, const string& note) {
     this->id = ++nextId; // cấp ID tự động
     this->type = type;
     this->partnerName = partnerName;
+=======
+Loan::Loan(LoanType type, const string& partnerEmail, long principal, double interestRate,
+           const string& startDate, const string& dueDate, const string& note) {
+    this->id = ++nextId; // cấp ID tự động
+    this->type = type;
+    this->partnerEmail = partnerEmail;
+>>>>>>> master
     this->principal = principal;
     this->interestRate = interestRate;
     this->startDate = startDate;
@@ -104,10 +112,31 @@ void Loan::listPayments() const {
     } else {
         cout << "Payments for loan ID " << id << ":" << endl;
         for (Payment* p : payments) {
+<<<<<<< HEAD
             cout << "  [PaymentID " << p->getId() << "] "
+=======
+            cout << " [PaymentID " << p->getId() << "] "
+>>>>>>> master
                  << p->getDate() << " - Amount: " << p->getAmount();
             if (!p->getNote().empty()) cout << " (Note: " << p->getNote() << ")";
             cout << endl;
         }
     }
 }
+<<<<<<< HEAD
+=======
+void Loan::showPaymentHistory() const {
+    cout << "\nLich Su Thanh Toan Khoan Vay:\n";
+    cout << "Loan ID: " << id << endl;
+    cout << "Loai: " << loanTypeToString(type) << endl;
+    cout << "Doi tac: " << partnerEmail << endl;
+    cout << "Tien goc: " << principal << endl;
+    cout << "Tong no: " << getDueTotal() << endl;
+    cout << "Da tra: " << getPaidTotal() << endl;
+    cout << "Con lai: " << getRemaining() << endl;
+    cout << "Trang thai: " << loanStatusToString(status) << endl;
+    listPayments();  
+}
+
+ 
+>>>>>>> master

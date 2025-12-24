@@ -6,10 +6,18 @@
 using namespace std;
 
 // Enum cho các loại giao dịch
+<<<<<<< HEAD
 enum class TransactionType { INCOME, EXPENSE };
 
 // Chuyển enum TransactionType sang string
 string transactionTypeToString(TransactionType t);
+=======
+enum class TransactionType { INCOME, EXPENSE, UNKNOWN };
+
+// Chuyển enum TransactionType sang string
+string transactionTypeToString(TransactionType t);
+TransactionType stringToTransactionType(const string& str);
+>>>>>>> master
 
 // Class Transaction: Thể hiện một giao dịch tài chính: income (thu), expense (chi)
 class Transaction {
@@ -34,6 +42,10 @@ public:
     string getCategory() const;
     string getNote() const;
 
+<<<<<<< HEAD
+=======
+    void setId(int id);
+>>>>>>> master
     void setTitle(const string& newTitle);
     void setAmount(double newAmount);
     void setDate(const string& newDate);
@@ -41,6 +53,10 @@ public:
     void setNote(const string& newNote);
     void setType(const TransactionType& t);
 
+<<<<<<< HEAD
+=======
+    void print()const ;
+>>>>>>> master
     bool isIncome() const;
     bool isExpense() const;
 };

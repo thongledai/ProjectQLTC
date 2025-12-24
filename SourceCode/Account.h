@@ -27,6 +27,7 @@ class Account{
         void setName(const std::string& newName);
         long getBalance() const;
         void setBalance(long newBalance);
+<<<<<<< HEAD
         const std::vector<Transaction*>& getTransactions() const;
 
         // Trả về danh sách giao dịch trong khoảng [fromDate, toDate].
@@ -45,6 +46,22 @@ class Account{
 
         long getBalance();
 
+=======
+        const std::vector<Transaction*> getTransactions() const;
+
+        Transaction deposit (const std::string& title, long amount, const std::string& date,
+                             const std::string& category, const std::string& note);
+
+        Transaction withdraw (const std::string& title ,long amount, const std::string& date,
+                              const std::string& category, const std::string& note);
+
+        void addTransaction (const Transaction& tx);
+        bool editTransaction(const int& txId, const Transaction& updated);
+        bool removeTransaction(const int& txId);
+
+        long getBalance();
+
+>>>>>>> master
         //báo cáo các giao dịch trong khoảng từ fromDate đến toDate
         void reportTrans(const std::string& fromDate, const std::string& toDate);
 };

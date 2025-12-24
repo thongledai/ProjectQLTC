@@ -1,0 +1,40 @@
+{
+    "users": [
+        {
+            "userEmail": "a b c",
+            "userId": 1,
+            "userName": "phan ngoc trung",
+            "userPassword": "1 2 3"
+        },
+        {
+            "userEmail": "phanngoctrung 2 3 4",
+            "userId": 2,
+            "userName": "phan ngoc trung",
+            "userPassword": "trung 12 34 5"
+        },
+        {
+            "userEmail": "a b c ",
+            "userId": 3,
+            "userName": "le dai thong ",
+            "userPassword": "1 2 3"
+        },
+        {
+            "userEmail": "b c a",
+            "userId": 4,
+            "userName": "le dai thong",
+            "userPassword": "1 2 3"
+        },
+        {
+            "userEmail": "1 2 3",
+            "userId": 5,
+            "userName": "phan ngoc trung ",
+            "userPassword": "1 2 3"
+        },
+        {
+            "userEmail": "3",
+            "userId": 6,
+            "userName": "3",
+            "userPassword": "3"
+        }
+    ]
+}

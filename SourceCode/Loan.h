@@ -44,7 +44,7 @@ private:
     static int nextId; 
     int id;
     LoanType type; 
-    string partnerName;
+    string partnerEmail;
     long principal; // tiền gốc
     double interestRate; // lãi xuất
     string startDate;
@@ -54,7 +54,11 @@ private:
     string note;
 
 public:
+<<<<<<< HEAD
     Loan(LoanType type, const string& partnerName, long principal, double interestRate,
+=======
+    Loan(LoanType type, const string& partnerEmail, long principal, double interestRate,
+>>>>>>> master
          const string& startDate, const string& dueDate, const string& note = "");
 
     ~Loan();
@@ -62,7 +66,7 @@ public:
     //getter
     int getId() const         { return id; }
     LoanType getType() const  { return type; }
-    string getPartnerName() const { return partnerName; }
+    string getPartnerEmail() const { return partnerEmail; }
     long getPrincipal() const   { return principal; }
     double getInterestRate() const{ return interestRate; }
     string getStartDate() const   { return startDate; }
@@ -71,7 +75,7 @@ public:
     string getNote() const        { return note; }
     
     //setter
-    void setPartnerName(const string& name) { partnerName = name; }
+    void setPartnerEmail(const string& email) { partnerEmail = email; }
     void setInterestRate(double rate)       { interestRate = rate; }
     void setDueDate(const string& date)     { dueDate = date; }
     
@@ -92,6 +96,13 @@ public:
 
     // In ra danh sách đã thanh toán
     void listPayments() const;
+<<<<<<< HEAD
+=======
+
+    // xem lịch sử thanh toán
+    void showPaymentHistory() const;
+
+>>>>>>> master
 };
 
 #endif

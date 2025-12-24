@@ -17,7 +17,11 @@ public:
 
     // Kiểm tra có người dùng nào đang đăng nhập không
     bool isLoggedIn() const;
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> master
     // Đăng ký tài khoản mới (trả về nullptr nếu đăng ký thất bại)
     User* registerUser(const std::string& fullName, const std::string& email, const std::string& password);
 
@@ -32,6 +36,35 @@ public:
 
     // Xuất dữ liệu ra file CSV
     void exportDataCSV(const std::string& filename);
+<<<<<<< HEAD
+=======
+
+    const std::vector<User*>& getAllUsers() const;
+
+    //chuyển khoản đến user khác bằng email
+    bool transferUser(
+        int fromAccountId,
+        const std::string& receiverEmail,
+        int toAccountId,
+        long amount,
+        const std::string& note
+    );
+    //chuyển khoản vay/cho vay
+    bool transferFromUser(
+    User* sender,
+    int fromAccountId,
+    const string& receiverEmail,
+    int toAccountId,
+    long amount,
+    const string& note
+);
+
+
+    //chuyển khoản từ người dung
+
+    User* findUserByEmail(const std::string& email);
+
+>>>>>>> master
 };
 
 #endif

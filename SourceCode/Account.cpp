@@ -29,6 +29,7 @@ const string& Account::getName() const { return name; }
 void Account::setName(const string& newName) { name = newName; }
 long Account::getBalance() const { return balance; }
 void Account::setBalance(long newBalance) { balance = newBalance; }
+<<<<<<< HEAD
 const vector<Transaction*>& Account::getTransactions() const { return transactions; }
 
 // Trả về danh sách giao dịch trong khoảng [fromDate, toDate].
@@ -43,13 +44,22 @@ vector<Transaction*> Account::getTransactions(const string& fromDate, const stri
     }
     return result;
 }
+=======
+const vector<Transaction*> Account::getTransactions() const { return this->transactions; }
+>>>>>>> master
 
 Transaction Account::deposit (const string& title, long amount, const string& date, const string& category, const string& note) 
 { //thu
     if (amount <= 0){
         throw invalid_argument("So tien khong duoc nho hon hoac bang 0");
     }
+<<<<<<< HEAD
     Transaction trans(title, amount, date, TransactionType::INCOME, category, note);         
+=======
+    Transaction trans(title, amount, date, TransactionType::INCOME, category, note);    
+    this->addTransaction(trans);
+    this->balance += trans.getAmount();    
+>>>>>>> master
     return trans;
 }
 
@@ -62,17 +72,26 @@ Transaction Account::withdraw (const string& title ,long amount, const string& d
         throw runtime_error("So du khong du");
 
     Transaction trans(title, amount, date, TransactionType::EXPENSE, category, note);
+<<<<<<< HEAD
+=======
+    this->addTransaction(trans);
+    this->balance -= trans.getAmount();
+
+>>>>>>> master
     return trans;
 }
 
 void Account::addTransaction (const Transaction& tx) {
     transactions.push_back(new Transaction(tx));
+<<<<<<< HEAD
     // cập nhật số dư
     if(tx.getType() == TransactionType::INCOME ) {
         this->balance += tx.getAmount();
     } else if(tx.getType() == TransactionType::EXPENSE ) {
         this->balance -= tx.getAmount();
     }
+=======
+>>>>>>> master
 }
 
 bool Account::editTransaction(const int& txId, const Transaction& updated) {
