@@ -16,6 +16,14 @@ string loanTypeToString(LoanType t) {
     return (t == LoanType::BORROW ? "BORROW" : "LEND");
 }
 
+LoanType stringToLoanType(const string& str) {
+    if (str == "BORROW") {
+        return LoanType::BORROW;
+    } else if (str == "LEND") {
+        return LoanType::LEND;
+    } else return LoanType::UNKNOWN;
+}
+
 string loanStatusToString(LoanStatus s) {
     switch(s) {
         case LoanStatus::OPEN:           return "OPEN";
