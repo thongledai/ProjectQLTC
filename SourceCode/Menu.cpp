@@ -215,11 +215,12 @@ void Menu::run()
                     cout << "Nhap ten moi cho tai khoan: ";
                     string newName;
                     getline(cin, newName);
-                    bool found = user->renameAccount(accId, newName);
-                    if (!found)
+                    if (user->renameAccount(accId, newName))
                     {
-                        cout << "Khong tím thay tai khoan!" << endl;
+                        cout << "Da thay doi ten tai khoan thanh {newName}." << endl;
                     }
+                    else
+                        cout << "Khong tim thay tai khoan!" << endl;
                     break;
                 }
                 case 3:
@@ -228,11 +229,12 @@ void Menu::run()
                     cout << "Nhap id cua tai khoan can xoa: ";
                     cin >> accId;
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                    bool found = user->removeAccount(accId);
-                    if (!found)
+                    if (user->removeAccount(accId))
                     {
-                        cout << "Khong tím thay tai khoan!" << endl;
+                        cout << "Da xoa tai khoan!" << endl;
                     }
+                    else
+                        cout << "Khong tim thay tai khoan!" << endl;
                     break;
                 }
                 case 4:
