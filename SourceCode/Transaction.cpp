@@ -17,6 +17,13 @@ string transactionTypeToString(TransactionType t)
     return "UNKNOWN";
 }
 
+TransactionType stringToTransactionType(const string& str) {
+    if (str == "INCOME") return TransactionType::INCOME;
+    else if (str == "EXPENSE") return TransactionType::EXPENSE;
+    else return TransactionType::UNKNOWN;
+}
+
+
 // Constructor
 Transaction::Transaction(const string &title, long amount, const string &date, TransactionType type,
                          const string &category, const string &note)
@@ -38,6 +45,7 @@ TransactionType Transaction::getType() const { return type; }
 string Transaction::getCategory() const { return category; }
 string Transaction::getNote() const { return note; }
 
+void Transaction::setId(int id) { this->id = id; }
 void Transaction::setTitle(const string &newTitle) { title = newTitle; }
 void Transaction::setAmount(double newAmount) { amount = newAmount; }
 void Transaction::setDate(const string &newDate) { date = newDate; }
