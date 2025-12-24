@@ -192,7 +192,7 @@ void Menu::run()
                     long initBal;
                     cout << "Nhap ten tai khoan moi: ";
                     getline(cin, accName);
-                    cout << "Nhap so du ban dau (0 neu khong co): ";
+                    cout << "Nhap so du ban dau: ";
                     cin >> initBal;
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
                     int id;
@@ -217,7 +217,7 @@ void Menu::run()
                     getline(cin, newName);
                     if (user->renameAccount(accId, newName))
                     {
-                        cout << "Da thay doi ten tai khoan thanh {newName}." << endl;
+                        cout << "Da thay doi ten tai khoan thanh \"" << newName << "\"" << endl;
                     }
                     else
                         cout << "Khong tim thay tai khoan!" << endl;
@@ -276,12 +276,11 @@ void Menu::run()
 
                     cout << "Nhap tieu de giao dich: ";
                     getline(cin, title);
-                    cout << "Nhap danh muc (khong bat buoc): ";
+                    cout << "Nhap danh muc: ";
                     getline(cin, category);
-                    cout << "Nhap ghi chu (khong bat buoc): ";
+                    cout << "Nhap ghi chu: ";
                     getline(cin, note);
-                    cout << "Nhap ngay (YYYY-MM-DD, bo trong = hom nay): ";
-                    getline(cin, date);
+                    date = getToday();
                     if (date.empty())
                         date = getToday();
                     bool found = false;
@@ -314,12 +313,11 @@ void Menu::run()
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
                     cout << "Nhap tieu de giao dich ";
                     getline(cin, title);
-                    cout << "Nhap danh muc(khong bat buoc): ";
+                    cout << "Nhap danh muc: ";
                     getline(cin, category);
-                    cout << "Nhap ghi chu(khong bat buoc): ";
+                    cout << "Nhap ghi chu: ";
                     getline(cin, note);
-                    cout << "Nhap ngay (YYYY-MM-DD, bo trong = hom nay): ";
-                    getline(cin, date);
+                    date = getToday();
                     if (date.empty())
                         date = getToday();
                     bool found = false;
@@ -353,7 +351,7 @@ void Menu::run()
                     cin >> amt;
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-                    cout << "Nhap ghi chu chuyen tien ( khong bat buoc ): ";
+                    cout << "Nhap ghi chu chuyen tien: ";
                     getline(cin, note);
                     user->transfer(fromId, toId, amt, note);
                     break;
@@ -558,7 +556,7 @@ void Menu::run()
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
                     cout << "Nhap ngay bat dau (YYYY-MM-DD): ";
                     getline(cin, startDate);
-                    cout << "Nhap ngay den han (YYYY-MM-DD): ";
+                    cout << "Nhap ngay het han (YYYY-MM-DD): ";
                     getline(cin, dueDate);
                     cout << "Nhap ghi chu (khong bat buoc): ";
                     getline(cin, note);
@@ -640,7 +638,7 @@ void Menu::run()
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
                     date = getToday();
-                    cout << "Nhap ghi chu (khong bat buoc): ";
+                    cout << "Nhap ghi chu: ";
                     getline(cin, note);
 
                     // partnerEmail là email đối tác
@@ -655,26 +653,26 @@ void Menu::run()
                     cout << "\nChon tai khoan tra no:\n";
                     A->listAccountsBrief();
                     int fromA;
-                    cout << "Nhap ID tai khoan tra (A): ";
+                    cout << "Nhap ID tai khoan tra: ";
                     cin >> fromA;
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
                     if (A->findAccountById(fromA) == nullptr)
                     {
-                        cout << "Khong ton tai tai khoan tra cua A!\n";
+                        cout << "Khong ton tai tai khoan tra!\n";
                         break;
                     }
                     // ===== chọn tài khoản để NHẬN =====
                     cout << "\nChon tai khoan nhan tien:\n";
                     B->listAccountsBrief();
                     int toB;
-                    cout << "Nhap ID tai khoan nhan (B): ";
+                    cout << "Nhap ID tai khoan nhan: ";
                     cin >> toB;
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
                     if (B->findAccountById(toB) == nullptr)
                     {
-                        cout << "Khong ton tai tai khoan nhan cua B!\n";
+                        cout << "Khong ton tai tai khoan nhan!\n";
                         break;
                     }
                     // ===== 1) chuyển tiền A -> B để cập nhật số dư =====
@@ -705,10 +703,10 @@ void Menu::run()
                     }
                     else
                     {
-                        cout << "Canh bao: Khong tim thay khoan vay doi ung ben B de cap nhat payment.\n";
+                        cout << "Canh bao: Khong tim thay khoan vay doi ung de cap nhat payment.\n";
                     }
 
-                    cout << "Da thanh toan. Con lai (A): " << loanA->getRemaining() << "\n";
+                    cout << "Da thanh toan. Con lai: " << loanA->getRemaining() << "\n";
                     break;
                 }
 
@@ -785,12 +783,12 @@ void Menu::run()
                 {
                     string fromDate, toDate;
 
-                    cout << "Nhap ngay bat dau bao cao (YYYY-MM-DD, bo trong neu khong gioi han): ";
+                    cout << "Nhap ngay bat dau bao cao (YYYY-MM-DD): ";
                     getline(cin, fromDate);
 
                     while (true)
                     {
-                        cout << "Nhap ngay ket thuc bao cao (YYYY-MM-DD, bo trong neu khong gioi han): ";
+                        cout << "Nhap ngay ket thuc bao cao (YYYY-MM-DD): ";
                         getline(cin, toDate);
 
                         // Neu ca hai deu co gia tri thi moi so sanh
