@@ -12,14 +12,9 @@ using json = nlohmann::json;
 class FileRepository {
 private:
     static json loadDatabase();
-    static json* findUserNode(json& db, int userId);
 
 public:
-    static std::vector<User*> loadUsers();
-    static std::vector<Account*> loadAccountsByUser(int userId);
-    static std::vector<Loan*> loadLoanByUser(int userId);
-
-    // static std::vector<Transaction*> loadTransactionsByAccount(int userId, int accId);
+    static std::vector<User*> loadUsersWithData();
 
     static void saveData(const vector<User*>& users);
 };
