@@ -27,8 +27,9 @@ public:
 
 // BROROW: user đi vay tiền người khác
 // LEND: user cho vay tiền
-enum class LoanType { BORROW, LEND };
+enum class LoanType { BORROW, LEND, UNKNOWN };
 string loanTypeToString(LoanType t);
+LoanType stringToLoanType(const string& str);
 
 // Trạng thái khoản vay
 // OPEN: chưa thanh toán
@@ -71,6 +72,7 @@ public:
     string getNote() const        { return note; }
     
     //setter
+    void setId(int id) { this->id = id; }
     void setPartnerEmail(const string& email) { partnerEmail = email; }
     void setInterestRate(double rate)       { interestRate = rate; }
     void setDueDate(const string& date)     { dueDate = date; }
