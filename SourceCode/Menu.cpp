@@ -60,7 +60,7 @@ void Menu::showLoanMenu()
 {
     cout << "\n===== MENU KHOAN VAY =====\n";
     cout << "0. Xem menu\n";
-    cout << "1. Them khoan vay (Vay / Cho vay)\n";
+    cout << "1. Them khoan vay\n";
     cout << "2. Thanh toan khoan vay\n";
     cout << "3. Xem danh sach cac khoan vay\n";
     cout << "4. Xem lich su thanh toan\n";
