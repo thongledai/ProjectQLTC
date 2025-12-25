@@ -19,7 +19,7 @@ Menu::Menu(App &appRef) : app(appRef) {}
 
 void Menu::showMainMenu()
 {
-    cout << "\n==== Menu Dang Nhap ====\n";
+    cout << "\n==== MENU DANG NHAP ====\n";
     cout << "0. Xem Menu\n";
     cout << "1. Dang ky\n";
     cout << "2. Dang nhap\n";
@@ -148,7 +148,7 @@ void Menu::run()
             }
         }
 
-        else // =====DA DANG NHAP =====
+        else // DA DANG NHAP
         {
             string userName = app.getCurrentUser()->getFullName();
             if (showUser)
@@ -174,7 +174,7 @@ void Menu::run()
                 showUserMenu(userName);
                 break;
             }
-            case 1: // ===== TAI KHOAN =====
+            case 1: // TAI KHOAN
             {
                 bool case1 = true;
                 showAccountMenu();
@@ -183,7 +183,7 @@ void Menu::run()
                     cout << "\nNhap lua chon: ";
 
                     cin >> subChoice;
-                    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // FIX NUỐT getline
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
                     switch (subChoice)
                     {
@@ -196,11 +196,24 @@ void Menu::run()
                         cout << "Nhap ID: ";
                         cin >> id;
                         cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+                        if (user->isAccountIdExist(id))
+                        {
+                            cout << "ID da ton tai!\n";
+                            break;
+                        }
+
                         string accName;
-                        long initBal;
                         cout << "Nhap ten tai khoan moi: ";
                         getline(cin, accName);
+
+                        if (user->isAccountNameExist(accName))
+                        {
+                            cout << "Ten tai khoan da ton tai!\n";
+                            break;
+                        }
                         cout << "Nhap so du ban dau: ";
+                        long initBal;
                         cin >> initBal;
                         cin.ignore(numeric_limits<streamsize>::max(), '\n');
                         Account *newAcc = user->addAccount(id, accName, initBal);
@@ -250,6 +263,7 @@ void Menu::run()
                     case 5:
                     {
                         case1 = false;
+                        showUserMenu(userName);
                         break;
                     }
                     default:
@@ -259,9 +273,10 @@ void Menu::run()
                     }
                     }
                 }
+
                 break;
             }
-            case 2: // ===== GIAO DICH =====
+            case 2: //  GIAO DICH
             {
                 bool case2 = true;
                 showTransactionMenu();
@@ -281,13 +296,11 @@ void Menu::run()
                         int accId;
                         double amt;
                         string title, category, note, date;
-
                         cout << "Nhap ID tai khoan can nap tien: ";
                         cin >> accId;
                         cout << "Nhap so tien can nap: ";
                         cin >> amt;
                         cin.ignore(numeric_limits<streamsize>::max(), '\n');
-
                         cout << "Nhap tieu de giao dich: ";
                         getline(cin, title);
                         cout << "Nhap danh muc: ";
@@ -457,6 +470,7 @@ void Menu::run()
                     case 6:
                     {
                         case2 = false;
+                        showUserMenu(userName);
                         break;
                     }
                     default:
@@ -466,9 +480,10 @@ void Menu::run()
                     }
                     }
                 }
+
                 break;
             }
-            case 3: // ===== KHOAN VAY =====
+            case 3: // KHOAN VAY
             {
                 bool case3 = true;
                 showLoanMenu();
@@ -507,7 +522,6 @@ void Menu::run()
                             break;
                         }
 
-                        // ====== chọn account nguồn/đích tùy loại ======
                         int fromId, toId;
                         long amount;
                         double interest;
@@ -515,7 +529,6 @@ void Menu::run()
 
                         if (typeChoice == 1)
                         {
-                            // ===== A VAY B: tiền B -> A =====
                             cout << "\n[Nguoi vay] Chon tai khoan NHAN tien:\n";
                             A->listAccountsBrief();
                             cout << "Nhap ID tai khoan nhan: ";
@@ -542,7 +555,6 @@ void Menu::run()
                         }
                         else if (typeChoice == 2)
                         {
-                            // ===== A CHO B VAY: tiền A -> B =====
                             cout << "\n[Nguoi cho vay] Chon tai khoan GUI tien:\n";
                             A->listAccountsBrief();
                             cout << "Nhap ID tai khoan gui: ";
@@ -571,7 +583,6 @@ void Menu::run()
                             cout << "Lua chon khong hop le!\n";
                             break;
                         }
-                        // ===== nhập thông tin khoản vay =====
                         cout << "Nhap so tien vay goc: ";
                         cin >> amount;
                         cout << "Nhap lai suat (%): ";
@@ -582,19 +593,15 @@ void Menu::run()
                         getline(cin, dueDate);
                         cout << "Nhap ghi chu (khong bat buoc): ";
                         getline(cin, note);
-
-                        // ====== 1) Chuyển tiền (tái dùng hàm chuyển khoản) ======
                         bool okTransfer = false;
                         if (typeChoice == 1)
                         {
-                            // B -> A (phải chỉ định sender là B)
                             okTransfer = app.transferFromUser(
                                 B, fromId, A->getEmail(), toId, amount,
                                 "Giai ngan vay: " + note);
                         }
                         else
                         {
-                            // A -> B (dùng hàm cũ luôn)
                             okTransfer = app.transferUser(
                                 fromId, B->getEmail(), toId, amount,
                                 "Cho vay: " + note);
@@ -605,10 +612,8 @@ void Menu::run()
                             cout << "Chuyen tien that bai!\n";
                             break;
                         }
-                        // ====== 2) Tự động tạo khoản vay cho cả 2 ======
                         if (typeChoice == 1)
                         {
-                            // A vay B
                             A->addLoan(LoanType::BORROW, B->getEmail(), amount, interest, startDate, dueDate, note);
 
                             string noteB = "Cho vay: " + A->getEmail();
@@ -618,7 +623,6 @@ void Menu::run()
                         }
                         else
                         {
-                            // A cho B vay
                             A->addLoan(LoanType::LEND, B->getEmail(), amount, interest, startDate, dueDate, note);
 
                             string noteB = "Vay tu: " + A->getEmail();
@@ -671,7 +675,6 @@ void Menu::run()
                             cout << "Khong tim thay user doi tac (email): " << partnerEmail << "\n";
                             break;
                         }
-                        // ===== chọn tài khoản de TRẢ =====
                         cout << "\nChon tai khoan tra no:\n";
                         A->listAccountsBrief();
                         int fromA;
@@ -684,7 +687,7 @@ void Menu::run()
                             cout << "Khong ton tai tai khoan tra!\n";
                             break;
                         }
-                        // ===== chọn tài khoản để NHẬN =====
+
                         cout << "\nChon tai khoan nhan tien:\n";
                         B->listAccountsBrief();
                         int toB;
@@ -697,21 +700,18 @@ void Menu::run()
                             cout << "Khong ton tai tai khoan nhan!\n";
                             break;
                         }
-                        // ===== 1) chuyển tiền A -> B để cập nhật số dư =====
                         bool okTransfer = app.transferUser(fromA, B->getEmail(), toB, amt, "Thanh toan vay: " + note);
                         if (!okTransfer)
                         {
                             cout << "Chuyen tien thanh toan that bai!\n";
                             break;
                         }
-                        // ===== 2) cập nhật payment cho loan của A =====
                         loanA->addPayment(amt, date, note);
 
-                        // ===== 3) cập nhật loan đối ứng của B =====
                         LoanType needTypeB = (loanA->getType() == LoanType::BORROW) ? LoanType::LEND : LoanType::BORROW;
                         Loan *loanB = B->findMatchingLoan(
                             needTypeB,
-                            A->getEmail(), // partner của B chính là email A
+                            A->getEmail(),
                             loanA->getPrincipal(),
                             loanA->getStartDate(),
                             loanA->getDueDate());
@@ -777,6 +777,7 @@ void Menu::run()
                     case 5:
                     {
                         case3 = false;
+                        showUserMenu(userName);
                         break;
                     }
                     default:
@@ -786,9 +787,10 @@ void Menu::run()
                     }
                     }
                 }
+
                 break;
             }
-            case 4: // ===== BAO CAO =====
+            case 4: // BAO CAO
             {
                 bool case4 = true;
                 showReportMenu();
@@ -822,7 +824,6 @@ void Menu::run()
                             cout << "Nhap ngay ket thuc bao cao (YYYY-MM-DD): ";
                             getline(cin, toDate);
 
-                            // Neu ca hai deu co gia tri thi moi so sanh
                             if (!fromDate.empty() && !toDate.empty())
                             {
                                 if (toDate < fromDate)
@@ -840,7 +841,6 @@ void Menu::run()
 
                     case 3:
                     {
-                        // ===== BAO CAO THU CHI USER =====
                         cout << "\n===== BAO CAO THU CHI =====\n";
 
                         string fromDate, toDate;
@@ -858,6 +858,7 @@ void Menu::run()
                     case 4:
                     {
                         case4 = false;
+                        showUserMenu(userName);
                         break;
                     }
                     default:
@@ -867,6 +868,7 @@ void Menu::run()
                     }
                     }
                 }
+
                 break;
             }
             case 5:

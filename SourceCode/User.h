@@ -47,8 +47,8 @@ public:
     void setFullName(string fullname);
     void setEmail(string email);
     void setPassword(string password);
-    void addAccount(Account* acc);
-    void addLoan(Loan* l);
+    void addAccount(Account *acc);
+    void addLoan(Loan *l);
 
     // Kiểm tra xác thực mật khẩu
     bool checkPassword(const string &pw) const;
@@ -71,10 +71,10 @@ public:
 
     Loan *addLoan(LoanType type, const string &partnerName, long principal, long interestRate,
                   const string &startDate, const string &dueDate, const string &note = "");
-    
-    //thanh toán vay
-    Loan* findLoanById(int loanId) const;
-    Loan* findMatchingLoan(LoanType type, const string& partnerEmail, long principal, const string& startDate, const string& dueDate) const;
+
+    // thanh toán vay
+    Loan *findLoanById(int loanId) const;
+    Loan *findMatchingLoan(LoanType type, const string &partnerEmail, long principal, const string &startDate, const string &dueDate) const;
 
     // Cập nhật thông tin khoản vay (lãi suất hoặc ngày đến hạn)
     bool updateLoan(int loanId, long newInterestRate = -1, const string &newDueDate = "");
@@ -96,5 +96,9 @@ public:
     // kiểm tra xem có tồn tại Acount có ID cần tìm không
     Account *findAccountById(int accountId) const;
     void listAccountsBrief() const;
+
+    // kiểm tra id, name trùng
+    bool isAccountIdExist(int id) const;
+    bool isAccountNameExist(const string &name) const;
 };
 #endif

@@ -358,3 +358,17 @@ void User::listAccountsBrief() const
         }
     }
 }
+bool User::isAccountIdExist(int id) const {
+    for (const Account* acc : accounts)
+        if (acc->getId() == id)
+            return true;
+    return false;
+}
+
+bool User::isAccountNameExist(const string& name) const {
+    for (const Account* acc : accounts)
+        if (acc->getName() == name)
+            return true;
+    return false;
+}
+

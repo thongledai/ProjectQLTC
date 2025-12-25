@@ -1,0 +1,144 @@
+{
+    "users": [
+        {
+            "accounts": [
+                {
+                    "accountBalance": 130,
+                    "accountId": 1,
+                    "accountName": "vi ngan hang",
+                    "transactions": [
+                        {
+                            "transactionAmount": 50,
+                            "transactionCategory": "",
+                            "transactionDate": "2025-12-24",
+                            "transactionId": 1,
+                            "transactionNote": "",
+                            "transactionTitle": "ok",
+                            "transactionType": "INCOME"
+                        },
+                        {
+                            "transactionAmount": 20,
+                            "transactionCategory": "",
+                            "transactionDate": "2025-12-24",
+                            "transactionId": 2,
+                            "transactionNote": "",
+                            "transactionTitle": "",
+                            "transactionType": "EXPENSE"
+                        }
+                    ]
+                },
+                {
+                    "accountBalance": 190,
+                    "accountId": 2,
+                    "accountName": "vi tiet kiem",
+                    "transactions": [
+                        {
+                            "transactionAmount": 10,
+                            "transactionCategory": " chuyen khoan",
+                            "transactionDate": "2025-12-24",
+                            "transactionId": 3,
+                            "transactionNote": "",
+                            "transactionTitle": "chuyen tien den vi vay",
+                            "transactionType": "EXPENSE"
+                        }
+                    ]
+                },
+                {
+                    "accountBalance": 390,
+                    "accountId": 3,
+                    "accountName": "vi vay",
+                    "transactions": [
+                        {
+                            "transactionAmount": 10,
+                            "transactionCategory": " chuyen khoan",
+                            "transactionDate": "2025-12-24",
+                            "transactionId": 4,
+                            "transactionNote": "",
+                            "transactionTitle": "chuyen tien tu vi tiet kiem",
+                            "transactionType": "INCOME"
+                        },
+                        {
+                            "transactionAmount": 50,
+                            "transactionCategory": "chuyen khoan ngoai",
+                            "transactionDate": "2025-12-24",
+                            "transactionId": 6,
+                            "transactionNote": "Cho vay: ",
+                            "transactionTitle": "Chuyen tien tu vi vay (User: Lieu Nhu Yen)",
+                            "transactionType": "INCOME"
+                        },
+                        {
+                            "transactionAmount": 30,
+                            "transactionCategory": "chuyen khoan ngoai",
+                            "transactionDate": "2025-12-24",
+                            "transactionId": 8,
+                            "transactionNote": "Thanh toan vay: ok",
+                            "transactionTitle": "Chuyen tien tu vi vay (User: Lieu Nhu Yen)",
+                            "transactionType": "INCOME"
+                        }
+                    ]
+                }
+            ],
+            "loans": [
+                {
+                    "loanDueDate": "2025-12-30",
+                    "loanId": 2,
+                    "loanInterestRate": 10.0,
+                    "loanNote": "Vay tu: lieunhuyen@gmail.com",
+                    "loanPartnerEmail": "lieunhuyen@gmail.com",
+                    "loanPrincipal": 50,
+                    "loanStartDate": "2025-12-24",
+                    "loanType": "BORROW"
+                }
+            ],
+            "userEmail": "ledaithong@gmail.com",
+            "userId": 1,
+            "userName": "Le Dai Thong",
+            "userPassword": "1"
+        },
+        {
+            "accounts": [
+                {
+                    "accountBalance": 220,
+                    "accountId": 1,
+                    "accountName": "vi vay",
+                    "transactions": [
+                        {
+                            "transactionAmount": 50,
+                            "transactionCategory": "chuyen khoan ngoai",
+                            "transactionDate": "2025-12-24",
+                            "transactionId": 5,
+                            "transactionNote": "Cho vay: ",
+                            "transactionTitle": "Chuyen tien den vi vay (User: Le Dai Thong)",
+                            "transactionType": "EXPENSE"
+                        },
+                        {
+                            "transactionAmount": 30,
+                            "transactionCategory": "chuyen khoan ngoai",
+                            "transactionDate": "2025-12-24",
+                            "transactionId": 7,
+                            "transactionNote": "Thanh toan vay: ok",
+                            "transactionTitle": "Chuyen tien den vi vay (User: Le Dai Thong)",
+                            "transactionType": "EXPENSE"
+                        }
+                    ]
+                }
+            ],
+            "loans": [
+                {
+                    "loanDueDate": "2025-12-30",
+                    "loanId": 1,
+                    "loanInterestRate": 10.0,
+                    "loanNote": "",
+                    "loanPartnerEmail": "ledaithong@gmail.com",
+                    "loanPrincipal": 50,
+                    "loanStartDate": "2025-12-24",
+                    "loanType": "LEND"
+                }
+            ],
+            "userEmail": "lieunhuyen@gmail.com",
+            "userId": 2,
+            "userName": "Lieu Nhu Yen",
+            "userPassword": "1"
+        }
+    ]
+}
