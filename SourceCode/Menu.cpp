@@ -816,6 +816,17 @@ void Menu::run()
                     {
                         string fromDate, toDate;
 
+                        int id;
+                        cout << "Nhap ID tai khoan: ";
+                        cin >> id;
+                        cin.ignore();
+
+                        Account *acc = user->findAccountById(id);
+                        if (acc == nullptr)
+                        {
+                            cout << "Khong tim thay ID tai khoan";
+                            break;
+                        }
                         cout << "Nhap ngay bat dau bao cao (YYYY-MM-DD): ";
                         getline(cin, fromDate);
 
@@ -834,8 +845,7 @@ void Menu::run()
                             }
                             break; // hop le
                         }
-                        Report rep = user->generateReport(fromDate, toDate);
-                        rep.display();
+                        acc->reportTrans(fromDate, toDate);
                         break;
                     }
 
